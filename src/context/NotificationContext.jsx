@@ -52,16 +52,19 @@ const MOCK_DATA = {
   MantraCare: {
     templates: {
       "Signup": { 
+        status: "Active",
         subject: "Welcome to MantraCare!", 
         email: "<h1>Welcome to MantraCare!</h1><p>Hi {{client_name}},</p><p>We are thrilled to have you on board. Explore our app to get started.</p>", 
         text: "Welcome to MantraCare, {{client_name}}! We are thrilled to have you on board. Explore our app to get started." 
       },
       "Meeting Scheduled": { 
+        status: "Active",
         subject: "Your Meeting is Scheduled", 
         email: "<h1>Meeting Scheduled</h1><p>Hi {{client_name}},</p><p>Your meeting with {{provider_name}} is scheduled for {{session_date}} at {{session_time}}.</p>", 
         text: "Hi {{client_name}}, your meeting with {{provider_name}} is scheduled for {{session_date}} at {{session_time}}." 
       },
       "Profile Edited": { 
+        status: "Draft",
         subject: "Profile Updated", 
         email: "<h1>Profile Updated</h1><p>Hi {{client_name}},</p><p>Your profile has been successfully updated.</p>", 
         text: "Hi {{client_name}}, your profile has been successfully updated." 
@@ -270,26 +273,31 @@ const MOCK_DATA = {
   MantraAssist: {
     templates: {
       "User Signup": { 
+        status: "Active",
         subject: "Welcome to MantraAssist!", 
         email: "<h1>Welcome!</h1><p>Hi {{client_name}},</p><p>Thanks for signing up for our AI Receptionist service.</p>", 
         text: "Hi {{client_name}}, welcome to MantraAssist! Your AI Receptionist is ready." 
       },
       "Number Added": { 
+        status: "Active",
         subject: "Virtual Number Configured", 
         email: "<h1>Number Added</h1><p>Your new virtual number {{number}} is now active.</p>", 
         text: "Your new virtual number {{number}} is now active on MantraAssist." 
       },
       "Credits Topped Up": { 
+        status: "Active",
         subject: "Credits Added Successfully", 
         email: "<h1>Payment Received</h1><p>Your account has been credited with {{credits}}.</p>", 
         text: "Success! {{credits}} credits have been added to your MantraAssist account." 
       },
       "Low Credits Reminder": { 
+        status: "Active",
         subject: "Action Required: Low Credits", 
         email: "<h1>Low Credits Warning</h1><p>You have less than {{credits}} credits remaining. Top up to avoid service interruption.</p>", 
         text: "Warning: Your MantraAssist credits are running low. Please top up soon." 
       },
       "New Team Added": { 
+        status: "Draft",
         subject: "Team Member Added", 
         email: "<h1>Team Updated</h1><p>{{member_name}} has been added to your workspace.</p>", 
         text: "{{member_name}} has been added to your workspace." 
@@ -432,31 +440,37 @@ const MOCK_DATA = {
   EyeMantra: {
     templates: {
       "Appointment Booked": { 
+        status: "Active",
         subject: "Appointment Confirmed", 
         email: "<h1>Booking Confirmed</h1><p>Hi {{client_name}}, your appointment at EyeMantra Hospital PaschimVihar is confirmed.</p>", 
         text: "Hi {{client_name}}, your appointment at EyeMantra Hospital PaschimVihar is confirmed." 
       },
       "Surgery Payment Received": { 
+        status: "Active",
         subject: "Payment Receipt", 
         email: "<h1>Payment Successful</h1><p>We have received your payment for the eye surgery.</p>", 
         text: "We have received your payment for the eye surgery at EyeMantra." 
       },
       "Arrival at Hospital": { 
+        status: "Active",
         subject: "Welcome to EyeMantra", 
         email: "<h1>Welcome</h1><p>Please proceed to the reception for your checkup.</p>", 
         text: "Welcome to EyeMantra! Please proceed to the reception." 
       },
       "Surgery Completed": { 
+        status: "Active",
         subject: "Post-Surgery Instructions", 
         email: "<h1>Surgery Successful</h1><p>Here are your post-surgery care instructions...</p>", 
         text: "Your surgery was successful! Please check your email for care instructions." 
       },
       "Post-Surgery Checkup": { 
+        status: "Active",
         subject: "Checkup Reminder", 
         email: "<h1>Reminder</h1><p>Your post-surgery checkup is scheduled for tomorrow.</p>", 
         text: "Reminder: Your post-surgery checkup is scheduled for tomorrow at EyeMantra." 
       },
       "Feedback Request": { 
+        status: "Draft",
         subject: "How was your experience?", 
         email: "<h1>Feedback</h1><p>Please rate your surgery experience.</p>", 
         text: "Please rate your experience at EyeMantra Hospital." 
@@ -846,6 +860,56 @@ export function NotificationProvider({ children }) {
     });
   };
 
+  const updateTemplateStatus = (templateName, newStatus) => {
+    setAllData(prev => {
+      const companyData = prev[selectedCompany] || { templates: {} };
+      const existingTpl = companyData.templates[templateName];
+      if (!existingTpl) return prev;
+      return {
+        ...prev,
+        [selectedCompany]: {
+          ...companyData,
+          templates: {
+            ...companyData.templates,
+            [templateName]: {
+              ...existingTpl,
+              status: newStatus
+            }
+          }
+        }
+      };
+    });
+  };
+
+  const addLog = (logEntry) => {
+    const newLog = {
+      id: logEntry.id || Date.now(),
+      notificationId: logEntry.notificationId || ("TEST-" + Math.floor(1000 + Math.random() * 9000)),
+      serviceType: logEntry.serviceType || "Email",
+      event: logEntry.event || "Sent",
+      status: logEntry.status || "Delivered",
+      sentTo: logEntry.sentTo || "user@example.com",
+      timestamp: logEntry.timestamp || new Date().toISOString().replace('T', ' ').slice(0, 19),
+      payload: logEntry.payload || "",
+      templateName: logEntry.templateName || "",
+      isTest: logEntry.isTest !== undefined ? logEntry.isTest : true,
+      ...logEntry
+    };
+
+    setAllData(prev => {
+      const companyData = prev[selectedCompany] || { logs: [] };
+      const currentLogs = companyData.logs || [];
+      return {
+        ...prev,
+        [selectedCompany]: {
+          ...companyData,
+          logs: [newLog, ...currentLogs]
+        }
+      };
+    });
+    return newLog;
+  };
+
   return (
     <NotificationContext.Provider
       value={{ 
@@ -856,7 +920,8 @@ export function NotificationProvider({ children }) {
         addNotification, deleteNotification, updateNotification,
         addTrigger, deleteTrigger, updateTrigger,
         updateEmailSettings, updateSmsSettings,
-        addTemplate, updateTemplate, deleteTemplate
+        addTemplate, updateTemplate, deleteTemplate, updateTemplateStatus,
+        addLog
       }}
     >
       {children}

@@ -18,7 +18,11 @@ import {
   Edit3, 
   RotateCcw,
   Zap,
-  Bell
+  Bell,
+  Mail,
+  MessageSquare,
+  Smartphone,
+  ShieldCheck
 } from "lucide-react";
 import { useNotifications } from "@/context/NotificationContext";
 import CustomSelect from "@/components/CustomSelect";
@@ -116,28 +120,71 @@ function AnalyticsContent() {
     });
   }, [logs, dateRange, channelFilter, statusFilter, notificationFilter, searchQuery]);
 
-  // Summary Metrics Computation
-  // Note: Mock data events are Sent, Received, Viewed, Failed, Skipped.
-  // "Received" is treated as the delivery-confirmation event, and Viewed implies successful receipt.
-  // Delivered / Received Rate = ((Received + Viewed) / Sent) * 100%
-  const totalSent = useMemo(() => {
-    return filteredLogs.filter(l => l.event === "Sent").length;
-  }, [filteredLogs]);
+  // Summary Metrics Computation: Group logs into unique message dispatches
+  // Each dispatch represents one message sent to a recipient
+  const dispatchSummary = useMemo(() => {
+    const map = new Map();
 
-  const deliveredCount = useMemo(() => {
-    return filteredLogs.filter(l => l.event === "Received" || l.event === "Viewed").length;
-  }, [filteredLogs]);
+    logs.forEach(log => {
+      if (!isDateInRange(log.timestamp, dateRange)) return;
+      if (channelFilter !== "All") {
+        if (channelFilter === "App Notification" && log.serviceType !== "App Notification" && log.serviceType !== "App") return;
+        if (channelFilter !== "App Notification" && log.serviceType !== channelFilter) return;
+      }
+      if (notificationFilter !== "All") {
+        if (String(log.notificationId) !== String(notificationFilter)) return;
+      }
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const sentToMatch = (log.sentTo || "").toLowerCase().includes(query);
+        const templateMatch = (log.templateId || "").toLowerCase().includes(query);
+        const logIdMatch = String(log.id).includes(query);
+        if (!sentToMatch && !templateMatch && !logIdMatch) return;
+      }
 
-  const failedCount = useMemo(() => {
-    return filteredLogs.filter(l => l.event === "Failed").length;
-  }, [filteredLogs]);
+      const day = (log.timestamp || "").slice(0, 10);
+      const key = `${log.notificationId || "0"}_${log.sentTo || "unknown"}_${day}`;
+      
+      if (!map.has(key)) {
+        map.set(key, {
+          key,
+          notificationId: log.notificationId,
+          sentTo: log.sentTo,
+          serviceType: log.serviceType,
+          templateId: log.templateId,
+          timestamp: log.timestamp,
+          events: new Set(),
+          status: "Sent"
+        });
+      }
 
-  const skippedLogs = useMemo(() => {
-    return filteredLogs.filter(l => l.event === "Skipped");
-  }, [filteredLogs]);
+      const entry = map.get(key);
+      entry.events.add(log.event);
+      if (entry.events.has("Viewed")) entry.status = "Viewed";
+      else if (entry.events.has("Received") || entry.events.has("Delivered")) entry.status = "Received";
+      else if (entry.events.has("Failed")) entry.status = "Failed";
+      else if (entry.events.has("Skipped")) entry.status = "Skipped";
+      else if (entry.events.has("Sent")) entry.status = "Sent";
+    });
 
-  const deliveryRate = totalSent > 0 ? Math.round((deliveredCount / totalSent) * 100) : 0;
-  const failureRate = totalSent > 0 ? Math.round((failedCount / totalSent) * 100) : 0;
+    const items = Array.from(map.values());
+    const totalAttempted = items.filter(d => d.status !== "Skipped").length;
+    const delivered = items.filter(d => d.status === "Received" || d.status === "Viewed").length;
+    const failed = items.filter(d => d.status === "Failed").length;
+    const skipped = items.filter(d => d.status === "Skipped").length;
+    
+    const deliveryRate = totalAttempted > 0 ? Math.min(100, Math.round((delivered / totalAttempted) * 100)) : 100;
+    const failureRate = totalAttempted > 0 ? Math.min(100, Math.round((failed / totalAttempted) * 100)) : 0;
+
+    return {
+      totalAttempted,
+      delivered,
+      failed,
+      skipped,
+      deliveryRate,
+      failureRate
+    };
+  }, [logs, dateRange, channelFilter, notificationFilter, searchQuery]);
 
   // Notification Filter Options
   const notificationOptions = useMemo(() => {
@@ -167,31 +214,13 @@ function AnalyticsContent() {
     return filteredLogs.slice(start, start + itemsPerPage);
   }, [filteredLogs, currentPage]);
 
-  // Chart Data: Group events by day over the spread
-  const chartData = useMemo(() => {
-    const dayMap = {};
-
-    filteredLogs.forEach(log => {
-      const day = (log.timestamp || "").split(" ")[0];
-      if (!day) return;
-      if (!dayMap[day]) {
-        dayMap[day] = { date: day, sent: 0, failed: 0, received: 0 };
-      }
-      if (log.event === "Sent") dayMap[day].sent += 1;
-      if (log.event === "Failed") dayMap[day].failed += 1;
-      if (log.event === "Received" || log.event === "Viewed") dayMap[day].received += 1;
-    });
-
-    return Object.values(dayMap).sort((a, b) => a.date.localeCompare(b.date));
-  }, [filteredLogs]);
-
-  // Breakdown by Notification
+  // Breakdown by Notification (dynamic per active filters)
   const notificationBreakdown = useMemo(() => {
     return notifications.map(notif => {
-      const notifLogs = logs.filter(l => l.notificationId === notif.id);
-      const sent = notifLogs.filter(l => l.event === "Sent").length;
+      const notifLogs = filteredLogs.filter(l => l.notificationId === notif.id);
+      const sent = notifLogs.filter(l => l.event === "Sent" || l.event === "Failed").length;
       const failed = notifLogs.filter(l => l.event === "Failed").length;
-      const failRate = sent > 0 ? Math.round((failed / sent) * 100) : 0;
+      const failRate = sent > 0 ? Math.min(100, Math.round((failed / sent) * 100)) : 0;
       
       // Max timestamp
       const timestamps = notifLogs.map(l => l.timestamp).filter(Boolean);
@@ -207,19 +236,19 @@ function AnalyticsContent() {
         lastSent
       };
     });
-  }, [notifications, logs]);
+  }, [notifications, filteredLogs]);
 
-  // Breakdown by Trigger
+  // Breakdown by Trigger (dynamic per active filters)
   const triggerBreakdown = useMemo(() => {
     return triggers.map(trig => {
       // Find all notifications matching this trigger
       const matchingNotifs = notifications.filter(n => n.trigger === trig.name);
       const matchingNotifIds = matchingNotifs.map(n => n.id);
       
-      const trigLogs = logs.filter(l => matchingNotifIds.includes(l.notificationId));
-      const sent = trigLogs.filter(l => l.event === "Sent").length;
+      const trigLogs = filteredLogs.filter(l => matchingNotifIds.includes(l.notificationId));
+      const sent = trigLogs.filter(l => l.event === "Sent" || l.event === "Failed").length;
       const failed = trigLogs.filter(l => l.event === "Failed").length;
-      const failRate = sent > 0 ? Math.round((failed / sent) * 100) : 0;
+      const failRate = sent > 0 ? Math.min(100, Math.round((failed / sent) * 100)) : 0;
 
       return {
         id: trig.id,
@@ -231,7 +260,83 @@ function AnalyticsContent() {
         failRate
       };
     });
-  }, [triggers, notifications, logs]);
+  }, [triggers, notifications, filteredLogs]);
+
+  // Channel Deliverability Breakdown
+  const channelBreakdown = useMemo(() => {
+    const channels = ["Email", "SMS", "App Notification"];
+    return channels.map(channel => {
+      const channelLogs = filteredLogs.filter(l => {
+        if (channel === "App Notification") {
+          return l.serviceType === "App Notification" || l.serviceType === "App";
+        }
+        return l.serviceType === channel;
+      });
+
+      const map = new Map();
+      channelLogs.forEach(l => {
+        const day = (l.timestamp || "").slice(0, 10);
+        const key = `${l.notificationId}_${l.sentTo}_${day}`;
+        if (!map.has(key)) {
+          map.set(key, { events: new Set(), status: "Sent" });
+        }
+        map.get(key).events.add(l.event);
+        if (l.event === "Viewed") map.get(key).status = "Viewed";
+        else if (l.event === "Received" || l.event === "Delivered") map.get(key).status = "Received";
+        else if (l.event === "Failed") map.get(key).status = "Failed";
+        else if (l.event === "Skipped") map.get(key).status = "Skipped";
+      });
+
+      const items = Array.from(map.values());
+      const attempted = items.filter(d => d.status !== "Skipped").length;
+      const delivered = items.filter(d => d.status === "Received" || d.status === "Viewed").length;
+      const viewed = items.filter(d => d.status === "Viewed").length;
+      const failed = items.filter(d => d.status === "Failed").length;
+      const skipped = items.filter(d => d.status === "Skipped").length;
+
+      const rate = attempted > 0 ? Math.min(100, Math.round((delivered / attempted) * 100)) : (channelLogs.length > 0 ? 100 : 0);
+      const viewRate = delivered > 0 ? Math.min(100, Math.round((viewed / delivered) * 100)) : 0;
+
+      return {
+        name: channel === "App Notification" ? "Mobile App Push" : channel,
+        rawChannel: channel,
+        attempted,
+        delivered,
+        viewed,
+        failed,
+        skipped,
+        rate,
+        viewRate,
+        icon: channel === "Email" ? Mail : channel === "SMS" ? MessageSquare : Smartphone,
+        color: channel === "Email" ? "var(--primary)" : channel === "SMS" ? "#7c3aed" : "#059669",
+        bgLight: channel === "Email" ? "rgba(20, 86, 240, 0.08)" : channel === "SMS" ? "rgba(139, 92, 246, 0.08)" : "rgba(16, 185, 129, 0.08)",
+        borderColor: channel === "Email" ? "rgba(20, 86, 240, 0.16)" : channel === "SMS" ? "rgba(139, 92, 246, 0.16)" : "rgba(16, 185, 129, 0.16)"
+      };
+    });
+  }, [filteredLogs]);
+
+  // Error & Skip Diagnostics Breakdown
+  const diagnosticsList = useMemo(() => {
+    const map = new Map();
+
+    filteredLogs.forEach(log => {
+      if (log.event === "Failed" || log.event === "Skipped") {
+        const reasonText = log.error || log.reason || (log.event === "Failed" ? "Delivery rejected by carrier" : "Skipped by routing rules");
+        if (!map.has(reasonText)) {
+          map.set(reasonText, {
+            reason: reasonText,
+            event: log.event,
+            count: 0,
+            channel: log.serviceType || "System",
+            sampleRecipient: log.sentTo
+          });
+        }
+        map.get(reasonText).count += 1;
+      }
+    });
+
+    return Array.from(map.values()).sort((a, b) => b.count - a.count);
+  }, [filteredLogs]);
 
   return (
     <div style={{ padding: "0 1rem 3rem 1rem", maxWidth: "1300px", margin: "0 auto" }}>
@@ -357,16 +462,19 @@ function AnalyticsContent() {
       {/* Summary Metrics Cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1.5rem", marginBottom: "2rem" }}>
         
-        {/* Total Sent */}
+        {/* Total Dispatched */}
         <div className="card" style={{ padding: "1.5rem", display: "flex", alignItems: "center", gap: "1.25rem" }}>
           <div className="kpi-icon-chip" style={{ background: "linear-gradient(135deg, #1456f0, #0284c7)", boxShadow: "0 8px 20px rgba(20,86,240,0.28)" }}>
             <Send size={22} color="white" />
           </div>
           <div>
-            <p className="kpi-title">Total Sent</p>
+            <p className="kpi-title">Total Dispatched</p>
             <h2 className="kpi-value" style={{ margin: "0.2rem 0 0 0" }}>
-              {totalSent}
+              {dispatchSummary.totalAttempted}
             </h2>
+            <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+              Messages in {dateRange}
+            </span>
           </div>
         </div>
 
@@ -376,12 +484,12 @@ function AnalyticsContent() {
             <CheckCircle2 size={22} color="white" />
           </div>
           <div>
-            <p className="kpi-title">Delivered / Received</p>
+            <p className="kpi-title">Delivery Rate</p>
             <h2 className="kpi-value" style={{ margin: "0.2rem 0 0 0" }}>
-              {totalSent > 0 ? `${deliveryRate}%` : "—"}
+              {dispatchSummary.totalAttempted > 0 ? `${dispatchSummary.deliveryRate}%` : "—"}
             </h2>
             <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
-              {deliveredCount} confirmed delivered
+              {dispatchSummary.delivered} confirmed delivered
             </span>
           </div>
         </div>
@@ -392,12 +500,12 @@ function AnalyticsContent() {
             <AlertOctagon size={22} color="white" />
           </div>
           <div>
-            <p className="kpi-title">Failed Rate</p>
+            <p className="kpi-title">Failure Rate</p>
             <h2 className="kpi-value" style={{ margin: "0.2rem 0 0 0" }}>
-              {totalSent > 0 ? `${failureRate}%` : "0%"}
+              {dispatchSummary.totalAttempted > 0 ? `${dispatchSummary.failureRate}%` : "0%"}
             </h2>
             <span style={{ fontSize: "0.78rem", color: "var(--danger)" }}>
-              {failedCount} message failures
+              {dispatchSummary.failed} message failures
             </span>
           </div>
         </div>
@@ -410,7 +518,7 @@ function AnalyticsContent() {
           <div>
             <p className="kpi-title">Skipped Messages</p>
             <h2 className="kpi-value" style={{ margin: "0.2rem 0 0 0" }}>
-              {skippedLogs.length}
+              {dispatchSummary.skipped}
             </h2>
             <span style={{ fontSize: "0.78rem", color: "#92400e" }}>
               Due to provider/country rules
@@ -420,139 +528,171 @@ function AnalyticsContent() {
 
       </div>
 
-      {/* Trend Chart (Inline SVG) */}
-      <div className="card" style={{ padding: "1.5rem", marginBottom: "2.5rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "0.75rem" }}>
-          <div>
-            <h3 style={{ fontSize: "1.15rem", fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0 }}>
-              Delivery Activity Over Time
-            </h3>
-            <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: "0.2rem 0 0 0" }}>
-              Daily sent volume vs failures over selected interval ({dateRange})
-            </p>
+      {/* Channel Health & Root Cause Diagnostics */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))", gap: "1.5rem", marginBottom: "2.5rem" }}>
+        
+        {/* Panel 1: Channel Deliverability & Engagement */}
+        <div className="card" style={{ padding: "1.5rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
+            <div>
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0 }}>
+                Channel Deliverability & Health
+              </h3>
+              <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: "0.2rem 0 0 0" }}>
+                Success benchmarks and user interaction per channel ({dateRange})
+              </p>
+            </div>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", backgroundColor: "#f1f5f9", padding: "0.2rem 0.6rem", borderRadius: "9999px", fontWeight: 600 }}>
+              3 Active Channels
+            </span>
           </div>
 
-          <div style={{ display: "flex", gap: "1.25rem", alignItems: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.85rem", color: "var(--dark)", fontWeight: "500" }}>
-              <span style={{ width: "12px", height: "12px", borderRadius: "3px", backgroundColor: "#1456f0", display: "inline-block" }}></span>
-              Sent
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.85rem", color: "var(--dark)", fontWeight: "500" }}>
-              <span style={{ width: "12px", height: "12px", borderRadius: "3px", backgroundColor: "#ef4444", display: "inline-block" }}></span>
-              Failed
-            </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
+            {channelBreakdown.map((ch) => {
+              const IconComponent = ch.icon;
+              return (
+                <div key={ch.name} style={{ backgroundColor: "#f8fafc", border: "1px solid #edf2f7", borderRadius: "14px", padding: "1rem 1.15rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
+                      <div style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: ch.bgLight, border: `1px solid ${ch.borderColor}`, color: ch.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <IconComponent size={16} />
+                      </div>
+                      <div>
+                        <span style={{ fontSize: "0.95rem", fontWeight: 700, fontFamily: "var(--font-display)", color: "var(--dark)", display: "block", lineHeight: 1.2 }}>
+                          {ch.name}
+                        </span>
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                          {ch.attempted} sent • {ch.delivered} delivered {ch.failed > 0 ? `• ${ch.failed} failed` : ""}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <span style={{ fontSize: "1.2rem", fontWeight: 800, fontFamily: "var(--font-display)", color: ch.rate >= 90 ? "#15803d" : ch.rate >= 75 ? "#b45309" : "#b91c1c" }}>
+                        {ch.attempted > 0 ? `${ch.rate}%` : "—"}
+                      </span>
+                      <span style={{ fontSize: "0.7rem", color: "var(--text-subtle)", display: "block", textTransform: "uppercase", fontWeight: 600 }}>
+                        Deliverability
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Deliverability Progress Bar */}
+                  <div style={{ width: "100%", height: "7px", backgroundColor: "#e2e8f0", borderRadius: "9999px", overflow: "hidden", marginBottom: "0.5rem" }}>
+                    <div 
+                      style={{ 
+                        width: `${ch.rate}%`, 
+                        height: "100%", 
+                        backgroundColor: ch.rate >= 90 ? "#10b981" : ch.rate >= 75 ? "#f59e0b" : "#ef4444",
+                        borderRadius: "9999px",
+                        transition: "width 0.4s ease"
+                      }}
+                    />
+                  </div>
+
+                  {/* Micro stat pill */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                    <span>User Open/View Rate: <strong style={{ color: "var(--dark)" }}>{ch.viewRate}%</strong></span>
+                    {ch.skipped > 0 && <span style={{ color: "#92400e" }}>{ch.skipped} skipped</span>}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {chartData.length === 0 ? (
-          <div style={{ padding: "3rem", textAlign: "center", color: "var(--text-muted)" }}>
-            No log events recorded within this time window.
+        {/* Panel 2: Failure & Exception Diagnostics */}
+        <div className="card" style={{ padding: "1.5rem", display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
+            <div>
+              <h3 style={{ fontSize: "1.1rem", fontWeight: 700, fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0 }}>
+                Failure & Rule Diagnostics
+              </h3>
+              <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: "0.2rem 0 0 0" }}>
+                Root cause reasons for failed or skipped deliveries ({dateRange})
+              </p>
+            </div>
+            <span style={{
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              padding: "0.2rem 0.6rem",
+              borderRadius: "9999px",
+              backgroundColor: diagnosticsList.length === 0 ? "#dcfce7" : "#fee2e2",
+              color: diagnosticsList.length === 0 ? "#15803d" : "#991b1b"
+            }}>
+              {diagnosticsList.length === 0 ? "Healthy" : `${diagnosticsList.reduce((acc, d) => acc + d.count, 0)} Exceptions`}
+            </span>
           </div>
-        ) : (
-          <div style={{ width: "100%", overflowX: "auto" }}>
-            {(() => {
-              const svgWidth = Math.max(700, chartData.length * 50);
-              const svgHeight = 220;
-              const padding = { top: 20, right: 20, bottom: 40, left: 40 };
-              const plotWidth = svgWidth - padding.left - padding.right;
-              const plotHeight = svgHeight - padding.top - padding.bottom;
 
-              const maxCount = Math.max(
-                4,
-                ...chartData.map(d => Math.max(d.sent, d.failed))
-              );
+          {diagnosticsList.length === 0 ? (
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2.5rem 1rem", textAlign: "center" }}>
+              <div style={{ width: "48px", height: "48px", borderRadius: "16px", backgroundColor: "#ecfdf5", border: "1px solid #a7f3d0", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "0.75rem" }}>
+                <ShieldCheck size={26} />
+              </div>
+              <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--dark)", margin: "0 0 0.25rem 0" }}>
+                Zero Delivery Errors
+              </h4>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: 0, maxWidth: "320px" }}>
+                All notifications sent in this interval were successfully accepted and delivered by downstream carriers.
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", flex: 1 }}>
+              {diagnosticsList.map((item, idx) => {
+                const isFailed = item.event === "Failed";
+                return (
+                  <div 
+                    key={idx}
+                    style={{
+                      backgroundColor: isFailed ? "#fff5f5" : "#fffbeb",
+                      border: `1px solid ${isFailed ? "#fed7d7" : "#fef3c7"}`,
+                      borderRadius: "12px",
+                      padding: "0.85rem 1rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      gap: "0.75rem"
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.25rem" }}>
+                        <span style={{
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                          padding: "0.15rem 0.5rem",
+                          borderRadius: "9999px",
+                          backgroundColor: isFailed ? "#fee2e2" : "#fef3c7",
+                          color: isFailed ? "#991b1b" : "#92400e"
+                        }}>
+                          {item.event}
+                        </span>
+                        <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-muted)" }}>
+                          Channel: {item.channel}
+                        </span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "var(--dark)", lineHeight: 1.35, wordBreak: "break-word" }}>
+                        {item.reason}
+                      </p>
+                      {item.sampleRecipient && (
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", display: "block", marginTop: "0.25rem" }}>
+                          Example target: <code style={{ fontFamily: "var(--font-mono)", color: "var(--text-main)" }}>{item.sampleRecipient}</code>
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <span style={{ fontSize: "1.1rem", fontWeight: 800, color: isFailed ? "var(--danger)" : "#b45309", fontFamily: "var(--font-display)" }}>
+                        {item.count}
+                      </span>
+                      <span style={{ fontSize: "0.7rem", color: "var(--text-subtle)", display: "block", textTransform: "uppercase", fontWeight: 600 }}>
+                        {item.count === 1 ? "Event" : "Events"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
-              const barGroupWidth = plotWidth / chartData.length;
-              const barWidth = Math.min(14, barGroupWidth * 0.35);
-
-              return (
-                <svg width={svgWidth} height={svgHeight} style={{ overflow: "visible" }}>
-                  {/* Background grid lines */}
-                  {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
-                    const y = padding.top + plotHeight * (1 - ratio);
-                    const labelVal = Math.round(maxCount * ratio);
-                    return (
-                      <g key={i}>
-                        <line 
-                          x1={padding.left} 
-                          y1={y} 
-                          x2={svgWidth - padding.right} 
-                          y2={y} 
-                          stroke="#e2e8f0" 
-                          strokeDasharray={ratio === 0 ? "none" : "3,3"} 
-                        />
-                        <text 
-                          x={padding.left - 8} 
-                          y={y + 4} 
-                          fontSize="10" 
-                          fill="#94a3b8" 
-                          textAnchor="end"
-                        >
-                          {labelVal}
-                        </text>
-                      </g>
-                    );
-                  })}
-
-                  {/* Bars & Labels */}
-                  {chartData.map((d, index) => {
-                    const groupX = padding.left + index * barGroupWidth;
-                    const centerX = groupX + barGroupWidth / 2;
-
-                    const sentHeight = (d.sent / maxCount) * plotHeight;
-                    const sentY = padding.top + plotHeight - sentHeight;
-
-                    const failedHeight = (d.failed / maxCount) * plotHeight;
-                    const failedY = padding.top + plotHeight - failedHeight;
-
-                    // Formatted short date (e.g. Aug 18)
-                    const dateParts = d.date.split("-");
-                    const shortDate = `${dateParts[1]}/${dateParts[2]}`;
-
-                    return (
-                      <g key={d.date}>
-                        {/* Sent Bar */}
-                        <rect
-                          x={centerX - barWidth - 2}
-                          y={sentY}
-                          width={barWidth}
-                          height={sentHeight}
-                          fill="#1456f0"
-                          rx="3"
-                        >
-                          <title>{`${d.date}: ${d.sent} Sent`}</title>
-                        </rect>
-
-                        {/* Failed Bar */}
-                        <rect
-                          x={centerX + 2}
-                          y={failedY}
-                          width={barWidth}
-                          height={failedHeight}
-                          fill="#ef4444"
-                          rx="3"
-                        >
-                          <title>{`${d.date}: ${d.failed} Failed`}</title>
-                        </rect>
-
-                        {/* X-axis Date Label */}
-                        <text
-                          x={centerX}
-                          y={svgHeight - 15}
-                          fontSize="10"
-                          fill="#64748b"
-                          textAnchor="middle"
-                        >
-                          {shortDate}
-                        </text>
-                      </g>
-                    );
-                  })}
-                </svg>
-              );
-            })()}
-          </div>
-        )}
       </div>
 
       {/* Breakdown Section: By Notification & By Trigger */}

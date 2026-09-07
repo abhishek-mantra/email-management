@@ -69,8 +69,15 @@ export default function LogDetailModal({ log, onClose }) {
           </button>
         </div>
 
-        <div style={{ padding: "1.75rem 1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+        <div style={{ padding: "1.75rem 1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem", maxHeight: "65vh", overflowY: "auto" }}>
           
+          {(log.isTest || String(log.notificationId).startsWith("TEST")) && (
+            <div style={{ backgroundColor: "#fef3c7", border: "1px solid #fde68a", borderRadius: "10px", padding: "0.65rem 0.9rem", display: "flex", alignItems: "center", gap: "0.5rem", color: "#92400e", fontSize: "0.82rem", fontWeight: 600 }}>
+              <AlertTriangle size={16} />
+              <span>Test Dispatch — Sent during manual verification with configured recipient.</span>
+            </div>
+          )}
+
           <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "1rem", alignItems: "center" }}>
             <span style={{ fontWeight: "600", color: "var(--text-muted)", fontSize: "0.9rem" }}>Event Status:</span>
             <span style={{ 
@@ -121,6 +128,32 @@ export default function LogDetailModal({ log, onClose }) {
               <strong>{log.timestamp}</strong>
             </div>
           </div>
+
+          {log.payload && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginTop: "0.25rem" }}>
+              <span style={{ fontWeight: "600", color: "var(--text-muted)", fontSize: "0.85rem" }}>
+                Delivered Payload Content:
+              </span>
+              <div 
+                style={{ 
+                  backgroundColor: "#f8fafc", 
+                  border: "1px solid #e2e8f0", 
+                  borderRadius: "8px", 
+                  padding: "0.85rem", 
+                  fontSize: "0.85rem", 
+                  maxHeight: "180px", 
+                  overflowY: "auto",
+                  color: "var(--dark)"
+                }}
+              >
+                {typeof log.payload === "string" && log.payload.includes("<") && log.payload.includes(">") ? (
+                  <div dangerouslySetInnerHTML={{ __html: log.payload }} />
+                ) : (
+                  <div style={{ whiteSpace: "pre-wrap" }}>{String(log.payload)}</div>
+                )}
+              </div>
+            </div>
+          )}
 
           {(log.event === "Failed" || log.event === "Skipped") && (log.error || log.reason) && (
             <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "1rem", alignItems: "flex-start" }}>

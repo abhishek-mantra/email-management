@@ -216,6 +216,102 @@ button {
   box-shadow: 0 3px 10px rgba(24, 30, 37, 0.28);
 }
 
+.pill-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: 9999px;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pill-option:hover {
+  color: var(--dark);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.pill-option.active {
+  background: var(--navy-gradient);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 3px 10px rgba(24, 30, 37, 0.25);
+}
+
+/* Rich text editor content styling */
+.editor-content-area {
+  outline: none;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--dark);
+}
+
+.editor-content-area:empty::before {
+  content: attr(data-placeholder);
+  color: #94a3b8;
+  font-style: italic;
+  pointer-events: none;
+}
+
+.editor-content-area h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  color: #0f172a;
+}
+
+.editor-content-area h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-top: 0.65rem;
+  margin-bottom: 0.5rem;
+  color: #1e293b;
+}
+
+.editor-content-area h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  margin-bottom: 0.35rem;
+  color: #334155;
+}
+
+.editor-content-area p {
+  margin-bottom: 0.65rem;
+}
+
+.editor-content-area ul, .editor-content-area ol {
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.editor-content-area li {
+  margin-bottom: 0.25rem;
+}
+
+.editor-content-area a {
+  color: #1456f0;
+  text-decoration: underline;
+}
+
+.editor-content-area blockquote {
+  border-left: 3px solid #cbd5e1;
+  padding-left: 0.85rem;
+  color: #64748b;
+  font-style: italic;
+  margin: 0.75rem 0;
+}
+
 /* Form elements */
 .input-group {
   display: flex;

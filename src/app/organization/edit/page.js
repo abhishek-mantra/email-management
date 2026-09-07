@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { ArrowLeft, Save, Plus, Edit, Copy, X, Check, Eye } from "lucide-react";
+import { ArrowLeft, Save, Plus, Edit, Copy, X, Check, Eye, Activity, Mail } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -157,16 +157,66 @@ function OrganizationEditContent() {
 
         {/* Log Reporting Section */}
         <div className="card" style={{ padding: "1.5rem", overflow: "visible" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
             <h2 style={{ fontSize: "1.2rem", fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0 }}>Log Reporting</h2>
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              <span style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>Reporting on:</span>
-              <CustomSelect 
-                value={reportingType}
-                onChange={setReportingType}
-                options={["Webhook", "Email"]}
-                style={{ width: "150px" }}
-              />
+            
+            {/* Secondary Pill Switcher (Design_1.md Section 4.5) */}
+            <div style={{
+              display: "inline-flex",
+              padding: "0.25rem",
+              backgroundColor: "rgba(255, 255, 255, 0.85)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(226, 232, 240, 0.9)",
+              borderRadius: "9999px",
+              gap: "0.25rem",
+              boxShadow: "inset 0 1px 2px rgba(0, 0, 0, 0.02)"
+            }}>
+              <button
+                type="button"
+                onClick={() => setReportingType("Webhook")}
+                style={{
+                  padding: "0.45rem 1.15rem",
+                  borderRadius: "9999px",
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 700,
+                  fontSize: "0.825rem",
+                  letterSpacing: "0.01em",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                  background: reportingType === "Webhook" ? "var(--navy-gradient)" : "transparent",
+                  color: reportingType === "Webhook" ? "#ffffff" : "#45515e",
+                  boxShadow: reportingType === "Webhook" ? "0 3px 10px rgba(24, 30, 37, 0.28)" : "none"
+                }}
+              >
+                <Activity size={14} /> Webhooks ({webhooks.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setReportingType("Email")}
+                style={{
+                  padding: "0.45rem 1.15rem",
+                  borderRadius: "9999px",
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 700,
+                  fontSize: "0.825rem",
+                  letterSpacing: "0.01em",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                  background: reportingType === "Email" ? "var(--navy-gradient)" : "transparent",
+                  color: reportingType === "Email" ? "#ffffff" : "#45515e",
+                  boxShadow: reportingType === "Email" ? "0 3px 10px rgba(24, 30, 37, 0.28)" : "none"
+                }}
+              >
+                <Mail size={14} /> Email Digests ({emailReports.length})
+              </button>
             </div>
           </div>
 

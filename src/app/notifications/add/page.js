@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useNotifications } from "@/context/NotificationContext";
 import dynamic from "next/dynamic";
-import { ArrowLeft, Save, Smartphone, Mail, MessageSquare, Info, Monitor, X, ChevronDown, ChevronUp, ChevronRight, Variable } from "lucide-react";
+import { ArrowLeft, Save, Smartphone, Mail, MessageSquare, Info, Monitor, X, ChevronDown, ChevronUp, ChevronRight, Variable, Eye, Send } from "lucide-react";
 import Link from "next/link";
 import "react-quill-new/dist/quill.snow.css";
 import toast from "react-hot-toast";
@@ -38,6 +38,15 @@ const NOTIFICATION_VARIABLES = [
   { label: "Session Time", value: "{{session_time}}" },
   { label: "Session Link", value: "{{session_link}}" }
 ];
+
+const SAMPLE_VARIABLE_MAP = {
+  client_name: "Jordan Lee",
+  order_id: "ORD-98231",
+  provider_name: "Dr. Amara Singh",
+  session_date: "Aug 20, 2026",
+  session_time: "10:30 AM",
+  session_link: "https://meet.mantra.care/session/jordan-lee"
+};
 
 const VariableDropdown = ({ onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -94,7 +103,7 @@ function AddNotificationContent() {
   const searchParams = useSearchParams();
   const editId = searchParams.get("id");
   const isBulk = searchParams.get("mode") === "bulk";
-  const { notifications, triggers, addNotification, updateNotification, templates } = useNotifications();
+  const { notifications, triggers, addNotification, updateNotification, templates, addLog } = useNotifications();
   const existing = editId ? notifications.find(n => n.id === Number(editId)) : null;
 
   const [formData, setFormData] = useState(() => ({
@@ -161,6 +170,59 @@ function AddNotificationContent() {
   const [emailInputMode, setEmailInputMode] = useState("Text");
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewMode, setPreviewMode] = useState("laptop");
+
+  // Test Dispatch state
+  const [testRecipientEmail, setTestRecipientEmail] = useState("qa-tester@mantracare.com");
+  const [testRecipientPhone, setTestRecipientPhone] = useState("+1 (555) 019-2834");
+  const [isSendingTestDispatch, setIsSendingTestDispatch] = useState(false);
+
+  const substituteVariables = (text) => {
+    if (!text) return "";
+    let result = text;
+    Object.entries(SAMPLE_VARIABLE_MAP).forEach(([key, val]) => {
+      result = result.replace(new RegExp(`{{\\s*${key}\\s*}}`, "g"), val);
+    });
+    return result;
+  };
+
+  const handleSendTestDispatch = () => {
+    const isSms = formData.type === "SMS";
+    const target = isSms ? testRecipientPhone.trim() : testRecipientEmail.trim();
+
+    if (!target) {
+      toast.error(`Please provide a valid ${isSms ? "phone number" : "email address"}`);
+      return;
+    }
+
+    setIsSendingTestDispatch(true);
+
+    setTimeout(() => {
+      let payloadContent = "";
+      if (formData.type === "Email") {
+        payloadContent = substituteVariables(formData.emailContent || "Empty email body");
+      } else if (formData.type === "SMS") {
+        payloadContent = substituteVariables(formData.smsContent || "Empty SMS content");
+      } else {
+        payloadContent = substituteVariables(formData.appTextContent || `Opened screen: ${formData.actionScreen}`);
+      }
+
+      const newLog = addLog({
+        id: Date.now(),
+        notificationId: editId ? `TEST-${editId}` : `TEST-DRAFT-${Math.floor(1000 + Math.random() * 9000)}`,
+        serviceType: formData.type || "Email",
+        sentTo: target,
+        event: "Sent",
+        status: "Delivered",
+        templateName: formData.templateName || formData.name || "Draft Notification",
+        payload: payloadContent,
+        isTest: true,
+        timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19)
+      });
+
+      setIsSendingTestDispatch(false);
+      toast.success(`Test message dispatched to "${target}"! Saved as Log #${newLog.id} in Recent Logs.`, { duration: 4500 });
+    }, 450);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -271,7 +333,15 @@ function AddNotificationContent() {
           </h1>
         </div>
 
-        <div style={{ marginLeft: "auto" }}>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <button 
+            type="button" 
+            className="btn btn-outline"
+            onClick={() => setShowPreviewModal(true)}
+            style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", fontWeight: 600 }}
+          >
+            <Eye size={16} /> Preview & Test
+          </button>
           <button className="btn btn-primary" onClick={handleSave}>
             <Save size={18} /> Save Notification
           </button>
@@ -930,38 +1000,209 @@ function AddNotificationContent() {
         </div>
       </div>
 
-      {/* Preview Modal */}
+      {/* Preview & Test Dispatch Modal */}
       {showPreviewModal && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div className="card" style={{ width: previewMode === "mobile" ? "375px" : "800px", height: "80vh", display: "flex", flexDirection: "column", transition: "width 0.3s ease" }}>
-            <div style={{ padding: "1rem", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-                <button className={`btn ${previewMode === "laptop" ? "btn-primary" : "btn-outline"}`} style={{ padding: "0.5rem" }} onClick={() => setPreviewMode("laptop")} title="Laptop View">
-                  <Monitor size={18} />
-                </button>
-                <button className={`btn ${previewMode === "mobile" ? "btn-primary" : "btn-outline"}`} style={{ padding: "0.5rem" }} onClick={() => setPreviewMode("mobile")} title="Mobile View">
-                  <Smartphone size={18} />
+        <div 
+          style={{ 
+            position: "fixed", 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            backgroundColor: "rgba(15,23,42,0.65)", 
+            backdropFilter: "blur(4px)",
+            zIndex: 100, 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "center",
+            padding: "1rem"
+          }}
+          onClick={() => setShowPreviewModal(false)}
+        >
+          <div 
+            className="card" 
+            style={{ 
+              width: "100%",
+              maxWidth: previewMode === "mobile" ? "480px" : "860px", 
+              maxHeight: "90vh", 
+              display: "flex", 
+              flexDirection: "column", 
+              transition: "max-width 0.25s ease",
+              borderRadius: "1.5rem",
+              boxShadow: "0 25px 50px -12px rgba(15,23,42,0.35)",
+              overflow: "hidden",
+              padding: 0
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#f8fafc" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <span style={{ 
+                  padding: "0.3rem 0.75rem", 
+                  borderRadius: "100px", 
+                  fontSize: "0.75rem", 
+                  fontWeight: 700, 
+                  backgroundColor: "rgba(20,86,240,0.1)", 
+                  color: "var(--primary)" 
+                }}>
+                  {formData.type} Channel
+                </span>
+                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0 }}>
+                  Preview &amp; Test Dispatch
+                </h3>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <div style={{ display: "flex", backgroundColor: "rgba(15,23,42,0.06)", borderRadius: "100px", padding: "2px" }}>
+                  <button 
+                    type="button" 
+                    className={`btn ${previewMode === "laptop" ? "btn-primary" : "btn-outline"}`} 
+                    style={{ padding: "0.35rem 0.75rem", borderRadius: "100px", fontSize: "0.78rem", border: "none" }} 
+                    onClick={() => setPreviewMode("laptop")} 
+                    title="Laptop View"
+                  >
+                    <Monitor size={15} /> Desktop
+                  </button>
+                  <button 
+                    type="button" 
+                    className={`btn ${previewMode === "mobile" ? "btn-primary" : "btn-outline"}`} 
+                    style={{ padding: "0.35rem 0.75rem", borderRadius: "100px", fontSize: "0.78rem", border: "none" }} 
+                    onClick={() => setPreviewMode("mobile")} 
+                    title="Mobile View"
+                  >
+                    <Smartphone size={15} /> Mobile
+                  </button>
+                </div>
+                <button 
+                  className="btn btn-outline" 
+                  style={{ padding: "0.4rem", border: "none", color: "var(--text-muted)" }} 
+                  onClick={() => setShowPreviewModal(false)} 
+                  title="Close Preview"
+                >
+                  <X size={20} />
                 </button>
               </div>
-              <button className="btn btn-outline" style={{ padding: "0.5rem", border: "none", color: "var(--text-muted)" }} onClick={() => setShowPreviewModal(false)} title="Close Preview">
-                <X size={20} />
-              </button>
             </div>
 
-            <div style={{ flex: 1, padding: "2rem", backgroundColor: "#f3f4f6", overflowY: "auto", display: "flex", justifyContent: "center" }}>
-              <div style={{ backgroundColor: "white", width: "100%", padding: "2rem", border: "1px solid var(--border-color)", borderRadius: "0.5rem", minHeight: "fit-content", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" }}>
-                {formData.emailSubject && (
-                  <div style={{ marginBottom: "1.5rem", paddingBottom: "1rem", borderBottom: "1px solid var(--border-color)" }}>
-                    <h2 style={{ fontSize: "1.25rem", color: "var(--dark)", margin: 0 }}>Subject: {formData.emailSubject}</h2>
+            {/* Preview Frame Body */}
+            <div style={{ flex: 1, padding: "1.5rem", backgroundColor: "#f1f5f9", overflowY: "auto", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+              <div 
+                style={{ 
+                  backgroundColor: "white", 
+                  width: "100%", 
+                  maxWidth: previewMode === "mobile" ? "360px" : "780px", 
+                  padding: previewMode === "mobile" ? "1.25rem" : "1.75rem", 
+                  border: previewMode === "mobile" ? "3px solid #334155" : "1px solid var(--border-color)", 
+                  borderRadius: previewMode === "mobile" ? "24px" : "12px", 
+                  minHeight: previewMode === "mobile" ? "380px" : "220px", 
+                  boxShadow: "0 8px 20px -4px rgba(0, 0, 0, 0.08)",
+                  boxSizing: "border-box"
+                }}
+              >
+                {formData.type === "Email" && (
+                  <div>
+                    <div style={{ marginBottom: "1rem", paddingBottom: "0.75rem", borderBottom: "1px solid #e2e8f0" }}>
+                      <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginBottom: "0.2rem" }}>
+                        From: <strong>{formData.senderEmail}</strong> (via {formData.emailProvider})
+                      </div>
+                      <h4 style={{ fontSize: "1.1rem", color: "var(--dark)", margin: 0, fontWeight: 700 }}>
+                        {substituteVariables(formData.emailSubject) || <span style={{ color: "#94a3b8", fontStyle: "italic" }}>No subject specified</span>}
+                      </h4>
+                    </div>
+                    <div
+                      className="email-preview-content"
+                      style={{ overflowWrap: "break-word", wordBreak: "break-word", whiteSpace: "normal", fontSize: "0.92rem", lineHeight: 1.6 }}
+                      dangerouslySetInnerHTML={{ __html: substituteVariables(formData.emailContent) || "<p style='color: #9ca3af; font-style: italic;'>No email body content entered yet...</p>" }}
+                    />
                   </div>
                 )}
-                <div
-                  className="email-preview-content"
-                  style={{ overflowWrap: "break-word", wordBreak: "break-word", whiteSpace: "normal" }}
-                  dangerouslySetInnerHTML={{ __html: formData.emailContent || "<p style='color: #9ca3af;'>Empty email content...</p>" }}
-                />
+
+                {formData.type === "SMS" && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                    <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", display: "flex", justifyContent: "space-between" }}>
+                      <span>Sender ID: <strong>MANTRA</strong></span>
+                      <span>Length: {(formData.smsContent || "").length} chars</span>
+                    </div>
+                    <div style={{ backgroundColor: "#e2e8f0", padding: "1rem 1.25rem", borderRadius: "18px 18px 18px 4px", color: "var(--dark)", fontSize: "0.95rem", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
+                      {substituteVariables(formData.smsContent) || "No SMS content entered yet..."}
+                    </div>
+                  </div>
+                )}
+
+                {formData.type === "App" && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                    <div style={{ backgroundColor: "#1e293b", color: "white", padding: "1rem", borderRadius: "12px", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                      <div style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <Smartphone size={18} color="white" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: "0.88rem", fontWeight: 700 }}>{formData.name || "MantraCare Notification"}</div>
+                        <div style={{ fontSize: "0.78rem", color: "#94a3b8" }}>
+                          Target Screen: <strong>{formData.actionScreen}</strong>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ padding: "0.75rem", backgroundColor: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "0.85rem" }}>
+                      {substituteVariables(formData.appTextContent) || `Opens screen: ${formData.actionScreen}`}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div style={{ width: "100%", maxWidth: previewMode === "mobile" ? "360px" : "780px", padding: "0.6rem 0.9rem", borderRadius: "8px", backgroundColor: "#fef9c3", border: "1px solid #fef08a", fontSize: "0.78rem", color: "#854d0e", boxSizing: "border-box" }}>
+                <strong>Dynamic variables replaced with sample values:</strong> <code>client_name</code> &rarr; &quot;Jordan Lee&quot;, <code>order_id</code> &rarr; &quot;ORD-98231&quot;, <code>provider_name</code> &rarr; &quot;Dr. Amara Singh&quot;
               </div>
             </div>
+
+            {/* Test Send Section in Footer */}
+            <div style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--border-color)", backgroundColor: "#ffffff" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flex: 1, minWidth: "280px" }}>
+                  <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--dark)", whiteSpace: "nowrap" }}>
+                    Send Test To:
+                  </label>
+                  {formData.type === "SMS" ? (
+                    <input
+                      type="tel"
+                      className="form-control"
+                      value={testRecipientPhone}
+                      onChange={(e) => setTestRecipientPhone(e.target.value)}
+                      placeholder="+1 (555) 019-2834"
+                      style={{ fontSize: "0.85rem", padding: "0.45rem 0.75rem", flex: 1 }}
+                    />
+                  ) : (
+                    <input
+                      type="email"
+                      className="form-control"
+                      value={testRecipientEmail}
+                      onChange={(e) => setTestRecipientEmail(e.target.value)}
+                      placeholder="e.g. test-recipient@mantracare.com"
+                      style={{ fontSize: "0.85rem", padding: "0.45rem 0.75rem", flex: 1 }}
+                    />
+                  )}
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleSendTestDispatch}
+                    disabled={isSendingTestDispatch}
+                    style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.45rem 1rem", fontSize: "0.85rem", whiteSpace: "nowrap" }}
+                  >
+                    {isSendingTestDispatch ? "Sending..." : <><Send size={14} /> Send Test</>}
+                  </button>
+                </div>
+
+                <button 
+                  type="button" 
+                  className="btn btn-outline" 
+                  onClick={() => setShowPreviewModal(false)}
+                  style={{ padding: "0.45rem 1rem", fontSize: "0.85rem" }}
+                >
+                  Close Preview
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
       )}

@@ -135,12 +135,9 @@ export default function Sidebar({ isOpen, setIsOpen }) {
           >
             M
           </div>
-          <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.1 }}>
-            <span>Mantra</span>
-            <span style={{ fontSize: "0.62rem", fontWeight: "600", color: "var(--text-subtle)", letterSpacing: "0.28em", textTransform: "uppercase" }}>
-              Assist
-            </span>
-          </div>
+          <span style={{ fontSize: "1.2rem", fontWeight: "800", fontFamily: "var(--font-display)", color: "var(--dark)", letterSpacing: "-0.02em" }}>
+            Mantra
+          </span>
         </div>
       </div>
 

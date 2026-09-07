@@ -2,12 +2,13 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useNotifications } from "@/context/NotificationContext";
-import { Plus, LayoutTemplate, X } from "lucide-react";
+import { Plus, LayoutTemplate, X, Zap, Search, Eye, ShoppingCart, UserCheck, Activity, CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
 import CustomSelect from "@/components/CustomSelect";
 
 export default function TriggerPage() {
-  const { triggers, addTrigger, selectedCompany } = useNotifications();
+  const { triggers, notifications, logs, addTrigger, selectedCompany } = useNotifications();
+  const [searchQuery, setSearchQuery] = useState("");
   const [isCreatingTrigger, setIsCreatingTrigger] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -36,27 +37,127 @@ export default function TriggerPage() {
 
   const isSaveActive = selectedTriggerType !== null && (triggerScope === "all" || (triggerScope === "some" && selectedApps.length > 0)) && triggerName.trim() !== "";
 
+  // Dynamic tenant-aware KPIs
+  const totalTriggers = triggers.length;
+  const activeInPipelines = triggers.filter(t => 
+    notifications.some(n => (n.trigger || "").trim().toLowerCase() === (t.name || "").trim().toLowerCase())
+  ).length;
+  const standbyCount = Math.max(0, totalTriggers - activeInPipelines);
+  const totalPipelinesLinked = notifications.filter(n => n.trigger).length;
+
+  const filteredTriggers = triggers.filter(t =>
+    t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    t.eventType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (t.filterField && t.filterField.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (t.filterCondition && t.filterCondition.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+    <div style={{ maxWidth: "1240px", margin: "0 auto" }}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.75rem", flexWrap: "wrap", gap: "1rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.9rem", fontWeight: "800", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0, letterSpacing: "-0.02em" }}>Triggers</h1>
-          <p style={{ color: "var(--text-muted)", margin: "0.25rem 0 0 0", fontSize: "0.9rem" }}>Showing triggers for {selectedCompany}</p>
+          <h1 style={{ fontSize: "2rem", fontWeight: "800", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0, letterSpacing: "-0.025em" }}>Triggers</h1>
+          <p style={{ color: "var(--text-muted)", margin: "0.25rem 0 0 0", fontSize: "0.875rem" }}>Event listeners, telemetry triggers, and dispatch hooks for {selectedCompany}</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setIsCreatingTrigger(true)}>
-          <span>Add New Trigger</span> <Plus size={18} />
+        <button 
+          className="btn btn-primary" 
+          onClick={() => setIsCreatingTrigger(true)}
+          style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem" }}
+        >
+          <Plus size={16} /> Add New Trigger
         </button>
       </div>
 
-      <div style={{ backgroundColor: "rgba(255,255,255,0.8)", backdropFilter: "blur(16px)", borderRadius: "1.25rem", overflow: "hidden", border: "1px solid rgba(255,255,255,0.7)", boxShadow: "0 1px 2px rgba(15,23,42,0.06), 0 8px 24px -12px rgba(15,23,42,0.12)", marginBottom: "2rem" }}>
-        {triggers.length === 0 ? (
+      {/* Dynamic KPI Stat Capsules */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1rem", marginBottom: "1.75rem" }}>
+        <div style={{ backgroundColor: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: "1.25rem", border: "1px solid rgba(255,255,255,0.8)", padding: "1.25rem", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 1px 3px rgba(15,23,42,0.04)" }}>
+          <div>
+            <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-subtle)", fontFamily: "var(--font-display)", margin: 0 }}>TOTAL TRIGGERS</p>
+            <h3 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--dark)", fontFamily: "var(--font-display)", margin: "0.25rem 0 0 0", letterSpacing: "-0.02em" }}>{totalTriggers}</h3>
+            <p style={{ fontSize: "12px", color: "var(--text-muted)", margin: "0.25rem 0 0 0" }}>Configured event rules</p>
+          </div>
+          <div style={{ width: "48px", height: "48px", borderRadius: "16px", backgroundColor: "rgba(20,86,240,0.08)", border: "1px solid rgba(20,86,240,0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
+            <Zap size={20} />
+          </div>
+        </div>
+
+        <div style={{ backgroundColor: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: "1.25rem", border: "1px solid rgba(255,255,255,0.8)", padding: "1.25rem", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 1px 3px rgba(15,23,42,0.04)" }}>
+          <div>
+            <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-subtle)", fontFamily: "var(--font-display)", margin: 0 }}>ACTIVE IN PIPELINES</p>
+            <h3 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--dark)", fontFamily: "var(--font-display)", margin: "0.25rem 0 0 0", letterSpacing: "-0.02em" }}>{activeInPipelines}</h3>
+            <p style={{ fontSize: "12px", color: "#16a34a", margin: "0.25rem 0 0 0", fontWeight: 600 }}>Wired to notifications</p>
+          </div>
+          <div style={{ width: "48px", height: "48px", borderRadius: "16px", backgroundColor: "rgba(22,163,74,0.08)", border: "1px solid rgba(22,163,74,0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#16a34a" }}>
+            <CheckCircle2 size={20} />
+          </div>
+        </div>
+
+        <div style={{ backgroundColor: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: "1.25rem", border: "1px solid rgba(255,255,255,0.8)", padding: "1.25rem", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 1px 3px rgba(15,23,42,0.04)" }}>
+          <div>
+            <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-subtle)", fontFamily: "var(--font-display)", margin: 0 }}>STANDBY TRIGGERS</p>
+            <h3 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--dark)", fontFamily: "var(--font-display)", margin: "0.25rem 0 0 0", letterSpacing: "-0.02em" }}>{standbyCount}</h3>
+            <p style={{ fontSize: "12px", color: "var(--text-muted)", margin: "0.25rem 0 0 0" }}>Listening, no pipeline yet</p>
+          </div>
+          <div style={{ width: "48px", height: "48px", borderRadius: "16px", backgroundColor: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#7c3aed" }}>
+            <Activity size={20} />
+          </div>
+        </div>
+
+        <div style={{ backgroundColor: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: "1.25rem", border: "1px solid rgba(255,255,255,0.8)", padding: "1.25rem", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 1px 3px rgba(15,23,42,0.04)" }}>
+          <div>
+            <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-subtle)", fontFamily: "var(--font-display)", margin: 0 }}>ATTACHED PIPELINES</p>
+            <h3 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--dark)", fontFamily: "var(--font-display)", margin: "0.25rem 0 0 0", letterSpacing: "-0.02em" }}>{totalPipelinesLinked}</h3>
+            <p style={{ fontSize: "12px", color: "var(--brand-cyan)", margin: "0.25rem 0 0 0", fontWeight: 600 }}>Active notification routes</p>
+          </div>
+          <div style={{ width: "48px", height: "48px", borderRadius: "16px", backgroundColor: "rgba(2,132,199,0.08)", border: "1px solid rgba(2,132,199,0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#0284c7" }}>
+            <UserCheck size={20} />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Table Card (Design_1.md Section 4.3) */}
+      <div className="card" style={{ padding: "0", overflow: "hidden", borderRadius: "20px", marginBottom: "2rem" }}>
+        {/* Search Toolbar */}
+        <div style={{ padding: "1rem 1.5rem", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "rgba(255,255,255,0.6)" }}>
+          <div style={{ position: "relative", width: "320px" }}>
+            <Search size={15} style={{ position: "absolute", left: "0.85rem", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+            <input 
+              type="text"
+              placeholder="Search triggers by name, event, filter..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "0.55rem 1rem 0.55rem 2.4rem",
+                borderRadius: "14px",
+                border: "1px solid rgba(226, 232, 240, 0.9)",
+                outline: "none",
+                fontSize: "0.85rem",
+                fontFamily: "var(--font-sans)",
+                backgroundColor: "#ffffff"
+              }}
+            />
+          </div>
+          <span style={{ fontSize: "12px", color: "var(--text-muted)", fontWeight: 600 }}>
+            Showing {filteredTriggers.length} of {totalTriggers} triggers
+          </span>
+        </div>
+
+        {filteredTriggers.length === 0 ? (
           <div style={{ padding: "4rem 1rem", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
             <LayoutTemplate size={48} style={{ color: "var(--text-muted)", opacity: 0.5, marginBottom: "0.5rem" }} />
-            <h3 style={{ color: "var(--dark)", fontSize: "1.2rem", fontWeight: "600" }}>No triggers configured</h3>
-            <p style={{ color: "var(--text-muted)", maxWidth: "400px" }}>This container has no triggers. Create one to define when your notifications should be sent.</p>
-            <button className="btn btn-primary" onClick={() => setIsCreatingTrigger(true)} style={{ marginTop: "1rem" }}>
-              Create New Trigger
-            </button>
+            <h3 style={{ color: "var(--dark)", fontSize: "1.2rem", fontWeight: "600", fontFamily: "var(--font-display)" }}>
+              {searchQuery ? "No triggers match your search" : "No triggers configured"}
+            </h3>
+            <p style={{ color: "var(--text-muted)", maxWidth: "400px", fontSize: "0.875rem" }}>
+              {searchQuery ? `Try clearing your search query "${searchQuery}"` : "This container has no triggers. Create one to define when your notifications should be sent."}
+            </p>
+            {!searchQuery && (
+              <button className="btn btn-primary" onClick={() => setIsCreatingTrigger(true)} style={{ marginTop: "0.5rem" }}>
+                Create New Trigger
+              </button>
+            )}
           </div>
         ) : (
           <div style={{ overflowX: "auto" }}>
@@ -66,36 +167,68 @@ export default function TriggerPage() {
                   <th style={{ padding: "1rem 1.5rem", width: "40px" }}>
                     <input type="checkbox" style={{ cursor: "pointer", width: "16px", height: "16px", accentColor: "white" }} />
                   </th>
-                  <th style={{ padding: "1rem 1.5rem", fontWeight: "600" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", cursor: "pointer" }}>
-                      Name
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5"></path><polyline points="5 12 12 5 19 12"></polyline></svg>
-                    </div>
-                  </th>
+                  <th style={{ padding: "1rem 1.5rem", fontWeight: "600" }}>Name</th>
                   <th style={{ padding: "1rem 1.5rem", fontWeight: "600" }}>Event Type</th>
-                  <th style={{ padding: "1rem 1.5rem", fontWeight: "600" }}>Filter</th>
-                  <th style={{ padding: "1rem 1.5rem", fontWeight: "600" }}>Tags</th>
+                  <th style={{ padding: "1rem 1.5rem", fontWeight: "600" }}>Filter Rule</th>
+                  <th style={{ padding: "1rem 1.5rem", fontWeight: "600" }}>Connected Pipelines</th>
                   <th style={{ padding: "1rem 1.5rem", fontWeight: "600" }}>Last Edited</th>
                 </tr>
               </thead>
               <tbody>
-                {triggers.map(trigger => (
-                  <tr key={trigger.id} className="table-row">
-                    <td>
-                      <input type="checkbox" style={{ cursor: "pointer", width: "16px", height: "16px" }} />
-                    </td>
-                    <td style={{ color: "var(--primary)", cursor: "pointer", fontWeight: "600" }}>{trigger.name}</td>
-                    <td style={{ color: "var(--text-main)" }}>{trigger.eventType}</td>
-                    <td>
-                      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                        <span style={{ backgroundColor: "var(--primary-light)", padding: "0.25rem 0.6rem", borderRadius: "100px", color: "var(--primary)", fontSize: "0.85rem", fontWeight: "600" }}>{trigger.filterField}</span>
-                        <span style={{ color: "var(--text-main)" }}>{trigger.filterCondition}</span>
-                      </div>
-                    </td>
-                    <td style={{ color: "var(--text-main)" }}>{trigger.tags}</td>
-                    <td style={{ color: "var(--text-muted)" }}>{trigger.lastEdited}</td>
-                  </tr>
-                ))}
+                {filteredTriggers.map(trigger => {
+                  const linkedPipelines = notifications.filter(n => (n.trigger || "").trim().toLowerCase() === (trigger.name || "").trim().toLowerCase());
+
+                  return (
+                    <tr key={trigger.id} className="table-row">
+                      <td style={{ padding: "1rem 1.5rem" }}>
+                        <input type="checkbox" style={{ cursor: "pointer", width: "16px", height: "16px" }} />
+                      </td>
+                      <td style={{ padding: "1rem 1.5rem", color: "var(--primary)", cursor: "pointer", fontWeight: "600", fontFamily: "var(--font-display)" }}>{trigger.name}</td>
+                      <td style={{ padding: "1rem 1.5rem", color: "var(--dark)", fontWeight: 500 }}>{trigger.eventType}</td>
+                      <td style={{ padding: "1rem 1.5rem" }}>
+                        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                          <span style={{ backgroundColor: "rgba(20,86,240,0.08)", border: "1px solid rgba(20,86,240,0.18)", padding: "0.2rem 0.65rem", borderRadius: "100px", color: "var(--primary)", fontSize: "0.78rem", fontWeight: "700", fontFamily: "var(--font-display)" }}>{trigger.filterField}</span>
+                          <span style={{ color: "var(--text-main)", fontSize: "0.85rem" }}>{trigger.filterCondition}</span>
+                        </div>
+                      </td>
+                      <td style={{ padding: "1rem 1.5rem", color: "var(--text-main)" }}>
+                        {linkedPipelines.length > 0 ? (
+                          <span 
+                            title={linkedPipelines.map(p => `#${p.id}: ${p.name}`).join(", ")}
+                            style={{ 
+                              padding: "0.22rem 0.65rem", 
+                              borderRadius: "100px", 
+                              backgroundColor: "#ecfdf5", 
+                              color: "#065f46", 
+                              border: "1px solid rgba(16,185,129,0.25)", 
+                              fontSize: "0.78rem", 
+                              fontWeight: 700, 
+                              fontFamily: "var(--font-display)",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.3rem"
+                            }}
+                          >
+                            <CheckCircle2 size={12} /> {linkedPipelines.length} {linkedPipelines.length === 1 ? "pipeline" : "pipelines"}
+                          </span>
+                        ) : (
+                          <span style={{ 
+                            padding: "0.22rem 0.65rem", 
+                            borderRadius: "100px", 
+                            backgroundColor: "#f1f5f9", 
+                            color: "#64748b", 
+                            fontSize: "0.78rem", 
+                            fontWeight: 600,
+                            fontFamily: "var(--font-display)"
+                          }}>
+                            Unlinked
+                          </span>
+                        )}
+                      </td>
+                      <td style={{ padding: "1rem 1.5rem", color: "var(--text-muted)", fontSize: "0.85rem" }}>{trigger.lastEdited}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
