@@ -131,7 +131,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
           >
             M
           </div>
-          <span>MantraCare</span>
+          <span>Mantra</span>
         </div>
       </div>
 
