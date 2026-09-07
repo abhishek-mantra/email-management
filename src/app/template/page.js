@@ -12,6 +12,7 @@ import {
 import { useNotifications } from "@/context/NotificationContext";
 import CustomSelect from "@/components/CustomSelect";
 import toast from "react-hot-toast";
+import { renderSubstitutedEmail, renderSubstitutedText } from "@/lib/renderContent";
 
 // Lightweight, robust Rich Text Editor with real-time editing and token insertion
 const RichTextEditor = ({ value, onChange }) => {
@@ -477,26 +478,6 @@ export default function TemplatePage() {
     } else {
       setTestChannel("Email");
     }
-  };
-
-  const renderSubstitutedEmail = (htmlContent, customVars = sampleMap) => {
-    if (!htmlContent) return "<p style='color:#64748b;font-style:italic;'>No email HTML configured for this template.</p>";
-    let result = htmlContent;
-    Object.entries(customVars).forEach(([key, val]) => {
-      const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
-      result = result.replace(regex, `<span style="background-color:#fef08a;color:#854d0e;padding:1px 5px;border-radius:3px;font-weight:600;">${val}</span>`);
-    });
-    return result;
-  };
-
-  const renderSubstitutedText = (text, customVars = sampleMap) => {
-    if (!text) return "";
-    let result = text;
-    Object.entries(customVars).forEach(([key, val]) => {
-      const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
-      result = result.replace(regex, val);
-    });
-    return result;
   };
 
   const handleExecuteSendTest = () => {

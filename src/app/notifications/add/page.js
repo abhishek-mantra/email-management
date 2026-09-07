@@ -4,11 +4,12 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useNotifications } from "@/context/NotificationContext";
 import dynamic from "next/dynamic";
-import { ArrowLeft, Save, Smartphone, Mail, MessageSquare, Info, Monitor, X, ChevronDown, ChevronUp, ChevronRight, Variable, Eye, Send } from "lucide-react";
+import { ArrowLeft, Save, Smartphone, Mail, MessageSquare, Info, Monitor, X, ChevronDown, ChevronUp, ChevronRight, Variable, Eye, Send, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import "react-quill-new/dist/quill.snow.css";
 import toast from "react-hot-toast";
 import CustomSelect from "@/components/CustomSelect";
+import { substituteVariables } from "@/lib/renderContent";
 
 // Dynamically import ReactQuill to prevent SSR issues
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
@@ -22,6 +23,23 @@ const APP_SCREENS = [
 const CORPORATES = ["EY", "Google", "Microsoft", "Amazon", "Apple", "Netflix", "Accenture", "Deloitte"];
 const TIMEZONES = ["IST (GMT+5:30)", "EST (GMT-5:00)", "PST (GMT-8:00)", "GMT (GMT+0:00)"];
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const SERVICES = ["Therapy", "Psychiatry", "Couples", "Teen", "Diet", "Physio", "Sleep", "Yoga"];
+const AI_THERAPISTS = ["General AI Therapist", "Therapy AI Therapist", "Physio AI Therapist", "Diet AI Therapist"];
+const CONDITION_FIELDS = ["Service", "Order Purchased", "Order Type", "Last Active", "User Type"];
+const CONDITION_VALUE_OPTIONS = {
+  Service: SERVICES,
+  "Order Purchased": ["Yes", "No"],
+  "Order Type": ["B2B", "B2C"],
+  "Last Active": [],
+  "User Type": ["Client", "Provider"]
+};
+const CONDITION_VALUE_DEFAULTS = {
+  Service: "Therapy",
+  "Order Purchased": "Yes",
+  "Order Type": "B2B",
+  "Last Active": "within 30 days",
+  "User Type": "Client"
+};
 const EMAIL_PROVIDERS = {
   Sendgrid: ["donotreply@mantra.care", "support@mantra.care", "provider@mantra.care"],
   Brevo: ["donotreply@mantra.care", "donotreply@mantracare.com", "provider@mantra.care", "provider@mantracare.com"],
@@ -38,15 +56,6 @@ const NOTIFICATION_VARIABLES = [
   { label: "Session Time", value: "{{session_time}}" },
   { label: "Session Link", value: "{{session_link}}" }
 ];
-
-const SAMPLE_VARIABLE_MAP = {
-  client_name: "Jordan Lee",
-  order_id: "ORD-98231",
-  provider_name: "Dr. Amara Singh",
-  session_date: "Aug 20, 2026",
-  session_time: "10:30 AM",
-  session_link: "https://meet.mantra.care/session/jordan-lee"
-};
 
 const VariableDropdown = ({ onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -135,15 +144,67 @@ function AddNotificationContent() {
     selectedCorporates: existing?.selectedCorporates || [],
     appNotificationType: existing?.appNotificationType || "App Screen",
     appTextContent: existing?.appTextContent || "",
+    chatService: existing?.chatService || "Therapy",
+    aiTherapist: existing?.aiTherapist || AI_THERAPISTS[0],
+    conditions: existing?.conditions || [],
     status: existing?.status || "Active",
     templateName: existing?.templateName || ""
   }));
+
+  // Tracks whether the message content fields differ from what a template last loaded.
+  // Used to warn before overwriting edited content and to show a "Modified from template" badge.
+  const [contentDirty, setContentDirty] = useState(() => {
+    if (!existing || !existing.templateName || !templates[existing.templateName]) return false;
+    const tpl = templates[existing.templateName];
+    return existing.emailContent !== (tpl.email || "") ||
+      existing.smsContent !== (tpl.text || "") ||
+      existing.appTextContent !== (tpl.text || "");
+  });
+  const [pendingTemplateName, setPendingTemplateName] = useState(null);
+
+  const updateContentField = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    setContentDirty(true);
+  };
+
+  const applyTemplate = (val) => {
+    if (!val || !templates[val]) return;
+    setFormData(prev => ({
+      ...prev,
+      templateName: val,
+      emailSubject: templates[val].subject || "",
+      emailContent: templates[val].email || "",
+      smsContent: templates[val].text || "",
+      appTextContent: templates[val].text || ""
+    }));
+    setContentDirty(false);
+  };
 
   const [isBasicDetailsOpen, setIsBasicDetailsOpen] = useState(true);
   const [isTriggerOpen, setIsTriggerOpen] = useState(true);
   const [isContentSetupOpen, setIsContentSetupOpen] = useState(true);
   const [isConditionsOpen, setIsConditionsOpen] = useState(true);
   const [errors, setErrors] = useState({});
+
+  const ERROR_LABELS = {
+    name: "Notification name",
+    emailSubject: "Email subject",
+    emailContent: "Email content",
+    smsContent: "SMS content",
+    appTextContent: "Text content",
+  };
+
+  const openAccordionForError = (key) => {
+    if (key === "name") setIsBasicDetailsOpen(true);
+    else if (key === "emailSubject" || key === "emailContent" || key === "smsContent" || key === "appTextContent") setIsContentSetupOpen(true);
+  };
+
+  const jumpToErrorField = (key) => {
+    openAccordionForError(key);
+    setTimeout(() => {
+      document.getElementById(`notification-field-${key}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 60);
+  };
 
   const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
   const [corporateDropdownOpen, setCorporateDropdownOpen] = useState(false);
@@ -175,15 +236,6 @@ function AddNotificationContent() {
   const [testRecipientEmail, setTestRecipientEmail] = useState("qa-tester@mantracare.com");
   const [testRecipientPhone, setTestRecipientPhone] = useState("+1 (555) 019-2834");
   const [isSendingTestDispatch, setIsSendingTestDispatch] = useState(false);
-
-  const substituteVariables = (text) => {
-    if (!text) return "";
-    let result = text;
-    Object.entries(SAMPLE_VARIABLE_MAP).forEach(([key, val]) => {
-      result = result.replace(new RegExp(`{{\\s*${key}\\s*}}`, "g"), val);
-    });
-    return result;
-  };
 
   const handleSendTestDispatch = () => {
     const isSms = formData.type === "SMS";
@@ -226,12 +278,44 @@ function AddNotificationContent() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "emailContent" || name === "smsContent" || name === "appTextContent") {
+      updateContentField(name, value);
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+    setErrors((prev) => {
+      if (!(name in prev) || (typeof value === "string" && !value.trim() && name !== "appTextContent")) return prev;
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
+  };
+
+  const addConditionRow = () => {
+    setFormData(prev => ({
+      ...prev,
+      conditions: [...(prev.conditions || []), { field: "Service", operator: "equals", value: "Therapy", connector: "And" }]
+    }));
+  };
+
+  const updateCondition = (index, patch) => {
+    setFormData(prev => {
+      const conditions = [...(prev.conditions || [])];
+      conditions[index] = { ...conditions[index], ...patch };
+      return { ...prev, conditions };
+    });
+  };
+
+  const removeCondition = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      conditions: (prev.conditions || []).filter((_, i) => i !== index)
+    }));
   };
 
   const handleSave = () => {
     const newErrors = {};
-    if (!formData.name) newErrors.name = "Please enter a name";
+    if (!formData.name.trim()) newErrors.name = "Please enter a name";
 
     if (formData.type === "Email") {
       if (!formData.emailSubject.trim()) newErrors.emailSubject = "Please enter an email subject";
@@ -245,10 +329,17 @@ function AddNotificationContent() {
       newErrors.smsContent = "Please enter the SMS content";
     }
 
+    if (
+      (formData.type === "App" && formData.appNotificationType === "Text") ||
+      formData.type === "Mobile"
+    ) {
+      if (!formData.appTextContent.trim()) newErrors.appTextContent = "Please enter the text content";
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      toast.error("Please fix the errors before saving.");
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      toast.error(`Please fill in the missing required field${Object.keys(newErrors).length > 1 ? "s" : ""}.`);
+      jumpToErrorField(Object.keys(newErrors)[0]);
       return;
     }
     setErrors({});
@@ -348,6 +439,34 @@ function AddNotificationContent() {
         </div>
       </div>
 
+      {Object.keys(errors).length > 0 && (
+        <div
+          role="alert"
+          style={{ backgroundColor: "rgba(239,68,68,0.06)", border: "1px solid var(--danger)", borderRadius: "12px", padding: "0.9rem 1.1rem", marginBottom: "1.25rem", display: "flex", alignItems: "flex-start", gap: "0.75rem" }}
+        >
+          <div style={{ marginTop: "0.05rem" }}>
+            <AlertTriangle size={18} color="var(--danger)" />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.55rem" }}>
+            <div style={{ fontWeight: "700", color: "var(--danger)", fontFamily: "var(--font-display)", fontSize: "0.95rem" }}>
+              {Object.keys(errors).length} required field{Object.keys(errors).length > 1 ? "s" : ""} missing
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+              {Object.entries(errors).map(([key, message]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => jumpToErrorField(key)}
+                  style={{ background: "white", border: "1px solid rgba(239,68,68,0.4)", color: "var(--danger)", borderRadius: "100px", padding: "0.3rem 0.7rem", fontSize: "0.8rem", fontWeight: "600", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "0.35rem", fontFamily: "var(--font-sans)" }}
+                >
+                  <ChevronRight size={13} /> {ERROR_LABELS[key] || key}: {message.replace("Please ", "").replace("please ", "")}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {!isBulk && (
         <div className="card" style={{ padding: "1.5rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1.5rem", flexWrap: "wrap" }}>
           <label style={{ fontSize: "1.1rem", fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0 }}>Trigger Event:</label>
@@ -396,7 +515,8 @@ function AddNotificationContent() {
 
                 <div className="input-group">
                   <label>Name</label>
-                  <input type="text" className="form-control" name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Welcome Series 1" />
+                  <input type="text" id="notification-field-name" className={`form-control ${errors.name ? 'has-error' : ''}`} name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Welcome Series 1" style={errors.name ? { borderColor: "var(--danger)" } : {}} />
+                  {errors.name && <span style={{ color: "var(--danger)", fontSize: "0.8rem", marginTop: "-0.2rem" }}>{errors.name}</span>}
                 </div>
 
                 <div className="input-group">
@@ -426,25 +546,43 @@ function AddNotificationContent() {
               <div className="accordion-content-inner">
                 <div style={{ padding: "1.5rem" }}>
                 <div className="input-group">
-                  <label>Template</label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    Template
+                    {contentDirty && formData.templateName && (
+                      <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#92400e", backgroundColor: "#fef3c7", border: "1px solid #fde68a", padding: "0.15rem 0.6rem", borderRadius: "100px", letterSpacing: "0.02em", textTransform: "none" }}>
+                        Modified from template
+                      </span>
+                    )}
+                  </label>
                   <CustomSelect
                     value={formData.templateName || ""}
                     onChange={(val) => {
-                      if (val && templates[val]) {
-                        setFormData(prev => ({
-                          ...prev,
-                          templateName: val,
-                          emailSubject: templates[val].subject || "",
-                          emailContent: templates[val].email || "",
-                          smsContent: templates[val].text || "",
-                          appTextContent: templates[val].text || ""
-                        }));
+                      if (!val || !templates[val]) return;
+                      if (contentDirty) {
+                        setPendingTemplateName(val);
+                        return;
                       }
+                      applyTemplate(val);
                     }}
                     placeholder="Select a predefined template..."
                     options={Object.keys(templates).map(t => ({ value: t, label: t }))}
                     style={{ width: "400px" }}
                   />
+                  {contentDirty && pendingTemplateName && (
+                    <div style={{ marginTop: "0.75rem", padding: "0.85rem 1rem", backgroundColor: "#fffbeb", border: "1px solid #fde68a", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap" }}>
+                      <span style={{ fontSize: "0.85rem", color: "#92400e", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <Info size={15} /> Your edits will be overwritten if you load <strong>&quot;{pendingTemplateName}&quot;</strong>.
+                      </span>
+                      <span style={{ display: "inline-flex", gap: "0.5rem" }}>
+                        <button className="btn btn-primary" style={{ padding: "0.35rem 0.9rem", fontSize: "0.8rem" }} onClick={() => { applyTemplate(pendingTemplateName); setPendingTemplateName(null); }}>
+                          Apply Template
+                        </button>
+                        <button className="btn btn-outline" style={{ padding: "0.35rem 0.9rem", fontSize: "0.8rem" }} onClick={() => { setFormData(prev => ({ ...prev, templateName: pendingTemplateName })); setPendingTemplateName(null); }}>
+                          Keep My Content
+                        </button>
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="input-group">
@@ -508,11 +646,32 @@ function AddNotificationContent() {
 
                 {formData.appNotificationType === "Text" && (
                   <div className="input-group">
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "0.75rem" }}>
+                      <div>
+                        <label style={{ display: "block", fontSize: "0.75rem", fontWeight: "600", color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "0.4rem" }}>Service</label>
+                        <CustomSelect
+                          value={formData.chatService}
+                          onChange={val => setFormData({ ...formData, chatService: val })}
+                          options={SERVICES}
+                          style={{ width: "100%" }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: "block", fontSize: "0.75rem", fontWeight: "600", color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "0.4rem" }}>AI Therapist</label>
+                        <CustomSelect
+                          value={formData.aiTherapist}
+                          onChange={val => setFormData({ ...formData, aiTherapist: val })}
+                          options={AI_THERAPISTS}
+                          style={{ width: "100%" }}
+                        />
+                      </div>
+                    </div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "0.5rem" }}>
                       <label style={{ marginBottom: 0 }}>Text Content</label>
-                      <VariableDropdown onSelect={(v) => setFormData(f => ({ ...f, appTextContent: f.appTextContent + v }))} />
+                      <VariableDropdown onSelect={(v) => updateContentField("appTextContent", formData.appTextContent + v)} />
                     </div>
-                    <textarea className="form-control" name="appTextContent" value={formData.appTextContent} onChange={handleChange} rows="4" placeholder="Enter text content..."></textarea>
+                    <textarea className={`form-control ${errors.appTextContent ? 'has-error' : ''}`} id="notification-field-appTextContent" name="appTextContent" value={formData.appTextContent} onChange={handleChange} rows="4" placeholder="Enter text content..." style={errors.appTextContent ? { borderColor: "var(--danger)" } : {}}></textarea>
+                    {errors.appTextContent && <div style={{ color: "var(--danger)", fontSize: "0.8rem", marginTop: "0.2rem" }}>{errors.appTextContent}</div>}
                   </div>
                 )}
               </div>
@@ -523,9 +682,10 @@ function AddNotificationContent() {
                 <div className="input-group">
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "0.5rem" }}>
                     <label style={{ marginBottom: 0 }}>Text Content</label>
-                    <VariableDropdown onSelect={(v) => setFormData(f => ({ ...f, appTextContent: f.appTextContent + v }))} />
+                    <VariableDropdown onSelect={(v) => updateContentField("appTextContent", formData.appTextContent + v)} />
                   </div>
-                  <textarea className="form-control" name="appTextContent" value={formData.appTextContent} onChange={handleChange} rows="4" placeholder="Enter text content..."></textarea>
+                  <textarea className={`form-control ${errors.appTextContent ? 'has-error' : ''}`} id="notification-field-appTextContent" name="appTextContent" value={formData.appTextContent} onChange={handleChange} rows="4" placeholder="Enter text content..." style={errors.appTextContent ? { borderColor: "var(--danger)" } : {}}></textarea>
+                  {errors.appTextContent && <div style={{ color: "var(--danger)", fontSize: "0.8rem", marginTop: "0.2rem" }}>{errors.appTextContent}</div>}
                 </div>
               </div>
             )}
@@ -544,14 +704,14 @@ function AddNotificationContent() {
 
                 <div className="input-group">
                   <label>Email Subject</label>
-                  <input type="text" className={`form-control ${errors.emailSubject ? 'has-error' : ''}`} style={errors.emailSubject ? {borderColor: "var(--danger)"} : {}} name="emailSubject" value={formData.emailSubject} onChange={handleChange} placeholder="Enter subject line..." />
+                  <input type="text" id="notification-field-emailSubject" className={`form-control ${errors.emailSubject ? 'has-error' : ''}`} style={errors.emailSubject ? {borderColor: "var(--danger)"} : {}} name="emailSubject" value={formData.emailSubject} onChange={handleChange} placeholder="Enter subject line..." />
                   {errors.emailSubject && <span style={{ color: "var(--danger)", fontSize: "0.8rem", marginTop: "-0.2rem" }}>{errors.emailSubject}</span>}
                 </div>
 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "0.5rem" }}>
                   <label style={{ fontWeight: "500", fontSize: "0.875rem", marginBottom: 0 }}>Email Content</label>
                   <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    <VariableDropdown onSelect={(v) => setFormData(f => ({ ...f, emailContent: f.emailContent + v }))} />
+                    <VariableDropdown onSelect={(v) => updateContentField("emailContent", formData.emailContent + v)} />
                     <div style={{ display: "flex", backgroundColor: "white", borderRadius: "9999px", padding: "2px", border: "1px solid rgba(226, 232, 240, 0.9)" }}>
                       <button
                         style={{ padding: "0.25rem 0.75rem", fontSize: "0.75rem", borderRadius: "9999px", backgroundColor: emailInputMode === "Text" ? "var(--navy-gradient)" : "transparent", color: emailInputMode === "Text" ? "white" : "var(--text-muted)", fontWeight: "600" }}
@@ -570,11 +730,11 @@ function AddNotificationContent() {
                 </div>
 
                 {emailInputMode === "Text" ? (
-                  <div style={{ border: `1px solid ${errors.emailContent ? 'var(--danger)' : 'var(--border-color)'}`, borderRadius: "1rem", overflow: "hidden", backgroundColor: "white" }}>
+                  <div id="notification-field-emailContent" style={{ border: `1px solid ${errors.emailContent ? 'var(--danger)' : 'var(--border-color)'}`, borderRadius: "1rem", overflow: "hidden", backgroundColor: "white" }}>
                     <ReactQuill
                       theme="snow"
                       value={formData.emailContent}
-                      onChange={(content) => setFormData({ ...formData, emailContent: content })}
+                      onChange={(content) => updateContentField("emailContent", content)}
                       style={{ height: "200px", border: "none" }}
                     />
                   </div>
@@ -583,7 +743,7 @@ function AddNotificationContent() {
                     className="form-control"
                     style={{ minHeight: "240px", width: "100%", fontFamily: "monospace", padding: "1rem", whiteSpace: "pre-wrap", borderColor: errors.emailContent ? "var(--danger)" : "var(--border-color)" }}
                     value={formData.emailContent}
-                    onChange={(e) => setFormData({ ...formData, emailContent: e.target.value })}
+                    onChange={(e) => updateContentField("emailContent", e.target.value)}
                     placeholder={`<!DOCTYPE html>\n<html>\n  <head></head>\n  <body>\n    <h1>Hello World</h1>\n    <p>Your content here.</p>\n  </body>\n</html>`}
                   />
                 )}
@@ -596,7 +756,7 @@ function AddNotificationContent() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "0.5rem" }}>
                   <label style={{ fontWeight: "500", fontSize: "0.875rem", marginBottom: 0 }}>SMS Content</label>
                   <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    <VariableDropdown onSelect={(v) => setFormData(f => ({ ...f, smsContent: f.smsContent + v }))} />
+                    <VariableDropdown onSelect={(v) => updateContentField("smsContent", formData.smsContent + v)} />
                     <span style={{ fontSize: "0.75rem", color: formData.smsContent.length > 160 ? "var(--danger)" : "var(--text-muted)" }}>
                       {formData.smsContent.length}/160 characters
                     </span>
@@ -605,8 +765,9 @@ function AddNotificationContent() {
                 <textarea
                   className={`form-control ${errors.smsContent ? 'has-error' : ''}`}
                   style={{ minHeight: "150px", width: "100%", resize: "vertical", borderColor: errors.smsContent ? "var(--danger)" : "var(--border-color)" }}
+                  id="notification-field-smsContent"
                   value={formData.smsContent}
-                  onChange={(e) => setFormData({ ...formData, smsContent: e.target.value })}
+                  onChange={(e) => updateContentField("smsContent", e.target.value)}
                   name="smsContent"
                   placeholder="Enter SMS message..."
                 />
@@ -636,20 +797,84 @@ function AddNotificationContent() {
               <div className="accordion-content-inner">
                 <div style={{ padding: "1.5rem" }}>
 
-              <div style={{ display: "grid", gridTemplateColumns: isBulk ? "1fr" : "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem", paddingBottom: "1.5rem", borderBottom: "1px solid var(--border-color)", alignItems: "end" }}>
-                {!isBulk && (
-                  <div className="input-group" style={{ marginBottom: 0 }}>
-                    <label style={{ display: "block", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase", marginBottom: "0.5rem" }}>Send Timing</label>
-                    <CustomSelect
-                      value={formData.timing}
-                      onChange={val => setFormData({ ...formData, timing: val })}
-                      options={["Instantly", "1 Day", "2 Days", "7 Days", "14 Days", "30 Days"]}
-                      style={{ width: "100%" }}
-                    />
+              {/* Trigger Conditions rule builder */}
+              <div style={{ marginBottom: "2rem" }}>
+                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase", marginBottom: "0.75rem" }}>Trigger Conditions</label>
+                {formData.conditions.length === 0 && (
+                  <div style={{ padding: "1rem 1.25rem", border: "1px dashed var(--border-color)", borderRadius: "12px", backgroundColor: "rgba(255,255,255,0.5)", color: "var(--text-muted)", fontSize: "0.85rem", marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <Info size={15} /> No conditions added — this notification fires for all matching events.
                   </div>
                 )}
+                {formData.conditions.map((condition, index) => (
+                  <div key={index} style={{ border: "1px solid var(--border-color)", borderRadius: "12px", padding: "1rem 1.25rem", marginBottom: "0.75rem", backgroundColor: "rgba(255,255,255,0.6)", boxShadow: "0 1px 2px rgba(15,23,42,0.04)" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.9fr 1.4fr auto", gap: "0.75rem", alignItems: "end" }}>
+                      <div>
+                        <label style={{ display: "block", fontSize: "0.7rem", fontWeight: "600", color: "var(--text-subtle)", textTransform: "uppercase", marginBottom: "0.35rem" }}>Field</label>
+                        <CustomSelect
+                          value={condition.field}
+                          onChange={val => updateCondition(index, { field: val, value: CONDITION_VALUE_DEFAULTS[val] })}
+                          options={CONDITION_FIELDS}
+                          style={{ width: "100%" }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: "block", fontSize: "0.7rem", fontWeight: "600", color: "var(--text-subtle)", textTransform: "uppercase", marginBottom: "0.35rem" }}>Operator</label>
+                        <div style={{ padding: "0.6rem 1rem", border: "1px solid var(--border-color)", borderRadius: "0.5rem", backgroundColor: "#f8fafc", color: "var(--text-muted)", fontSize: "0.9rem" }}>equals</div>
+                      </div>
+                      <div>
+                        <label style={{ display: "block", fontSize: "0.7rem", fontWeight: "600", color: "var(--text-subtle)", textTransform: "uppercase", marginBottom: "0.35rem" }}>Value</label>
+                        {condition.field === "Last Active" ? (
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={condition.value}
+                            onChange={e => updateCondition(index, { value: e.target.value })}
+                            placeholder="e.g. within 30 days"
+                            style={{ padding: "0.6rem 0.9rem" }}
+                          />
+                        ) : (
+                          <CustomSelect
+                            value={condition.value}
+                            onChange={val => updateCondition(index, { value: val })}
+                            options={CONDITION_VALUE_OPTIONS[condition.field] || []}
+                            style={{ width: "100%" }}
+                          />
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeCondition(index)}
+                        title="Remove condition"
+                        style={{ padding: "0.5rem", borderRadius: "0.5rem", border: "1px solid var(--border-color)", backgroundColor: "white", color: "var(--danger)", cursor: "pointer", height: "38px", display: "flex", alignItems: "center", justifyContent: "center" }}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                    {index < formData.conditions.length - 1 && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px dashed var(--border-color)" }}>
+                        <span style={{ fontSize: "0.72rem", fontWeight: "600", color: "var(--text-subtle)", textTransform: "uppercase", letterSpacing: "0.04em" }}>Connector</span>
+                        <CustomSelect
+                          value={condition.connector}
+                          onChange={val => updateCondition(index, { connector: val })}
+                          options={["And", "Or"]}
+                          style={{ width: "110px" }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
+                  onClick={addConditionRow}
+                >
+                  + Add condition
+                </button>
+              </div>
 
-                {/* Toggle Row */}
+              {/* Toggle Row */}
+              <div style={{ marginBottom: "1.5rem", paddingBottom: "1.5rem", borderBottom: "1px solid var(--border-color)" }}>
                 <div style={{ backgroundColor: "rgba(255, 255, 255, 0.6)", borderRadius: "16px", padding: "1rem 1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid rgba(226, 232, 240, 0.9)", backdropFilter: "blur(8px)" }}>
                   <div>
                     <div style={{ fontWeight: "600", color: "var(--dark)", marginBottom: "0.2rem", fontSize: "0.95rem" }}>Visible to all corporates</div>
@@ -753,7 +978,7 @@ function AddNotificationContent() {
                   
                   {serviceDropdownOpen && (
                     <div style={{ position: "absolute", top: "100%", left: 0, right: 0, marginTop: "4px", backgroundColor: "white", border: "1px solid var(--border-color)", borderRadius: "0.5rem", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)", zIndex: 10, maxHeight: "250px", overflowY: "auto" }}>
-                      {["Therapy", "Psychiatry", "Couples", "Teen", "Diet", "Physio", "Sleep", "Yoga"].map(service => (
+                      {SERVICES.map(service => (
                         <label key={service} style={{ display: "flex", alignItems: "center", gap: "0.75rem", cursor: "pointer", fontSize: "0.9rem", color: "var(--dark)", padding: "0.75rem 1rem", borderBottom: "1px solid #f8fafc", transition: "background-color 0.1s" }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}>
                           <input 
                             type="checkbox"
@@ -812,6 +1037,18 @@ function AddNotificationContent() {
                     </div>
                   </div>
                 </div>
+
+                {!isBulk && (
+                  <div className="input-group" style={{ marginBottom: "1.5rem" }}>
+                    <label style={{ display: "block", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase", marginBottom: "0.5rem" }}>Send Timing</label>
+                    <CustomSelect
+                      value={formData.timing}
+                      onChange={val => setFormData({ ...formData, timing: val })}
+                      options={["Instantly", "1 Day", "2 Days", "7 Days", "14 Days", "30 Days"]}
+                      style={{ width: "100%" }}
+                    />
+                  </div>
+                )}
 
                 {/* Schedule Details */}
                 {formData.eventType === "One-time" ? (

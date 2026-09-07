@@ -2,7 +2,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
   Users,
   Building,
   Box,
@@ -28,7 +27,6 @@ const navGroups = [
   {
     title: "Notification",
     items: [
-      { label: "Dashboard", icon: LayoutDashboard, href: "/" },
       { label: "Analytics", icon: BarChart, href: "/analytics" },
       { label: "Organization", icon: Building, href: "/organization" },
       { label: "Template", icon: LayoutTemplate, href: "/template" },

@@ -27,6 +27,7 @@ import {
 import { useNotifications } from "@/context/NotificationContext";
 import CustomSelect from "@/components/CustomSelect";
 import LogDetailModal from "@/components/LogDetailModal";
+import { computeDispatchSummary, isDateInRange } from "@/lib/logStats";
 
 function AnalyticsContent() {
   const searchParams = useSearchParams();
@@ -48,35 +49,6 @@ function AnalyticsContent() {
 
   // Active breakdown tab
   const [breakdownTab, setBreakdownTab] = useState("notifications"); // "notifications" | "triggers"
-
-  // Date filtering helper
-  const isDateInRange = (timestampStr, range) => {
-    if (!timestampStr) return false;
-    if (range === "All Time") return true;
-
-    // Parse YYYY-MM-DD
-    const logDate = new Date(timestampStr.replace(" ", "T"));
-    if (isNaN(logDate.getTime())) return true;
-
-    // Reference now based on latest log or current system time
-    const now = new Date();
-    const diffTime = now.getTime() - logDate.getTime();
-    const diffDays = diffTime / (1000 * 3600 * 24);
-
-    if (range === "Today") {
-      return logDate.toDateString() === now.toDateString() || diffDays <= 1;
-    }
-    if (range === "Last 7 Days") {
-      return diffDays <= 7;
-    }
-    if (range === "Last 30 Days") {
-      return diffDays <= 30;
-    }
-    if (range === "This Year") {
-      return logDate.getFullYear() === now.getFullYear();
-    }
-    return true;
-  };
 
   // Filtered Logs
   const filteredLogs = useMemo(() => {
@@ -123,67 +95,7 @@ function AnalyticsContent() {
   // Summary Metrics Computation: Group logs into unique message dispatches
   // Each dispatch represents one message sent to a recipient
   const dispatchSummary = useMemo(() => {
-    const map = new Map();
-
-    logs.forEach(log => {
-      if (!isDateInRange(log.timestamp, dateRange)) return;
-      if (channelFilter !== "All") {
-        if (channelFilter === "App Notification" && log.serviceType !== "App Notification" && log.serviceType !== "App") return;
-        if (channelFilter !== "App Notification" && log.serviceType !== channelFilter) return;
-      }
-      if (notificationFilter !== "All") {
-        if (String(log.notificationId) !== String(notificationFilter)) return;
-      }
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
-        const sentToMatch = (log.sentTo || "").toLowerCase().includes(query);
-        const templateMatch = (log.templateId || "").toLowerCase().includes(query);
-        const logIdMatch = String(log.id).includes(query);
-        if (!sentToMatch && !templateMatch && !logIdMatch) return;
-      }
-
-      const day = (log.timestamp || "").slice(0, 10);
-      const key = `${log.notificationId || "0"}_${log.sentTo || "unknown"}_${day}`;
-      
-      if (!map.has(key)) {
-        map.set(key, {
-          key,
-          notificationId: log.notificationId,
-          sentTo: log.sentTo,
-          serviceType: log.serviceType,
-          templateId: log.templateId,
-          timestamp: log.timestamp,
-          events: new Set(),
-          status: "Sent"
-        });
-      }
-
-      const entry = map.get(key);
-      entry.events.add(log.event);
-      if (entry.events.has("Viewed")) entry.status = "Viewed";
-      else if (entry.events.has("Received") || entry.events.has("Delivered")) entry.status = "Received";
-      else if (entry.events.has("Failed")) entry.status = "Failed";
-      else if (entry.events.has("Skipped")) entry.status = "Skipped";
-      else if (entry.events.has("Sent")) entry.status = "Sent";
-    });
-
-    const items = Array.from(map.values());
-    const totalAttempted = items.filter(d => d.status !== "Skipped").length;
-    const delivered = items.filter(d => d.status === "Received" || d.status === "Viewed").length;
-    const failed = items.filter(d => d.status === "Failed").length;
-    const skipped = items.filter(d => d.status === "Skipped").length;
-    
-    const deliveryRate = totalAttempted > 0 ? Math.min(100, Math.round((delivered / totalAttempted) * 100)) : 100;
-    const failureRate = totalAttempted > 0 ? Math.min(100, Math.round((failed / totalAttempted) * 100)) : 0;
-
-    return {
-      totalAttempted,
-      delivered,
-      failed,
-      skipped,
-      deliveryRate,
-      failureRate
-    };
+    return computeDispatchSummary(logs, { dateRange, channelFilter, notificationFilter, searchQuery });
   }, [logs, dateRange, channelFilter, notificationFilter, searchQuery]);
 
   // Notification Filter Options

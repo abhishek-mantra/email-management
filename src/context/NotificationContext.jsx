@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
+import { SAMPLE_VARIABLE_MAP, substituteVariables } from "@/lib/renderContent";
 
 const NotificationContext = createContext();
 
@@ -48,7 +49,7 @@ const INITIAL_ORGANIZATIONS = [
   }
 ];
 
-const MOCK_DATA = {
+const RAW_MOCK_DATA = {
   MantraCare: {
     templates: {
       "Signup": { 
@@ -604,6 +605,46 @@ const MOCK_DATA = {
     }
   }
 };
+
+// Extra sample variables for templates that reference them (not in the shared map)
+const COMPANY_EXTRA_VARS = {
+  MantraAssist: { number: "+1 415-555-0100", credits: "250", member_name: "Priya Sharma" }
+};
+
+// Builds a real "delivered payload" for every seeded log by looking up the
+// notification it belongs to and rendering that notification's content with
+// sample variables substituted — mirrors what the test-send flows produce.
+const buildSeededLogPayload = (log, companyData, companyKey) => {
+  const notification = (companyData.notifications || []).find(n => n.id === log.notificationId);
+  if (!notification) return log;
+
+  const template = companyData.templates?.[notification.templateName] || {};
+  const vars = { ...SAMPLE_VARIABLE_MAP, ...(COMPANY_EXTRA_VARS[companyKey] || {}) };
+
+  let raw = "";
+  if (log.serviceType === "Email") {
+    raw = notification.emailContent || template.email || "";
+  } else if (log.serviceType === "SMS") {
+    raw = notification.smsContent || template.text || "";
+  } else if (log.serviceType === "App Notification" || log.serviceType === "App") {
+    raw = notification.appTextContent || (notification.actionScreen ? `Opened screen: ${notification.actionScreen}` : "") || template.text || "";
+  } else {
+    raw = notification.smsContent || notification.emailContent || template.text || "";
+  }
+
+  const payload = substituteVariables(raw, vars).trim() || "(empty delivery payload)";
+  return { ...log, payload };
+};
+
+const MOCK_DATA = Object.fromEntries(
+  Object.entries(RAW_MOCK_DATA).map(([companyKey, companyData]) => [
+    companyKey,
+    {
+      ...companyData,
+      logs: (companyData.logs || []).map(log => buildSeededLogPayload(log, companyData, companyKey))
+    }
+  ])
+);
 
 export function NotificationProvider({ children }) {
   const [selectedCompany, setSelectedCompany] = useState("MantraCare");
