@@ -58,7 +58,7 @@ export default function Dashboard() {
     <div style={{ padding: "0 1rem 2rem 1rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: "700", color: "var(--dark)", margin: 0, letterSpacing: "-0.5px" }}>Dashboard</h1>
+          <h1 style={{ fontSize: "1.9rem", fontWeight: "800", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0, letterSpacing: "-0.02em" }}>Dashboard</h1>
           <p style={{ color: "var(--text-muted)", marginTop: "0.25rem", fontSize: "0.95rem" }}>
             Overview for <strong style={{ color: "var(--primary)" }}>{selectedCompany}</strong>
           </p>
@@ -71,7 +71,7 @@ export default function Dashboard() {
 
       {/* Filters (Active & Connected) */}
       <div className="card" style={{ padding: "1.25rem", marginBottom: "2rem", display: "flex", gap: "1.5rem", flexWrap: "wrap", alignItems: "center", overflow: "visible" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <Calendar size={18} color="var(--text-muted)" />
           <CustomSelect 
             value={dateRange} 
@@ -81,7 +81,7 @@ export default function Dashboard() {
           />
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <Settings2 size={18} color="var(--text-muted)" />
           <CustomSelect 
             value={triggerFilter} 
@@ -91,7 +91,7 @@ export default function Dashboard() {
           />
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <BellRing size={18} color="var(--text-muted)" />
           <CustomSelect 
             value={typeFilter} 
@@ -104,33 +104,33 @@ export default function Dashboard() {
 
       {/* Metrics */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1.5rem", marginBottom: "2.5rem" }}>
-        <div className="card" style={{ padding: "1.5rem", display: "flex", alignItems: "center", gap: "1.5rem", borderLeft: "4px solid #3b82f6" }}>
-          <div style={{ backgroundColor: "#eff6ff", padding: "1rem", borderRadius: "12px", color: "#3b82f6" }}>
-            <Activity size={28} />
+        <div className="card" style={{ padding: "1.5rem", display: "flex", alignItems: "center", gap: "1.5rem" }}>
+          <div className="kpi-icon-chip" style={{ background: "linear-gradient(135deg, #1456f0, #0284c7)", boxShadow: "0 8px 20px rgba(20,86,240,0.28)" }}>
+            <Activity size={24} color="white" />
           </div>
           <div>
-            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.9rem", fontWeight: "600", textTransform: "uppercase" }}>Total Sent ({dateRange})</p>
-            <h2 style={{ margin: 0, fontSize: "2rem", fontWeight: "700", color: "var(--dark)" }}>{totalSent.toLocaleString()}</h2>
+            <p className="kpi-title" style={{ margin: 0 }}>Total Sent ({dateRange})</p>
+            <h2 className="kpi-value" style={{ margin: 0 }}>{totalSent.toLocaleString()}</h2>
           </div>
         </div>
 
-        <div className="card" style={{ padding: "1.5rem", display: "flex", alignItems: "center", gap: "1.5rem", borderLeft: "4px solid #10b981" }}>
-          <div style={{ backgroundColor: "#ecfdf5", padding: "1rem", borderRadius: "12px", color: "#10b981" }}>
-            <Settings2 size={28} />
+        <div className="card" style={{ padding: "1.5rem", display: "flex", alignItems: "center", gap: "1.5rem" }}>
+          <div className="kpi-icon-chip" style={{ background: "linear-gradient(135deg, #10b981, #059669)", boxShadow: "0 8px 20px rgba(16,185,129,0.28)" }}>
+            <Settings2 size={24} color="white" />
           </div>
           <div>
-            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.9rem", fontWeight: "600", textTransform: "uppercase" }}>Active Triggers</p>
-            <h2 style={{ margin: 0, fontSize: "2rem", fontWeight: "700", color: "var(--dark)" }}>{activeTriggersCount}</h2>
+            <p className="kpi-title" style={{ margin: 0 }}>Active Triggers</p>
+            <h2 className="kpi-value" style={{ margin: 0 }}>{activeTriggersCount}</h2>
           </div>
         </div>
 
-        <div className="card" style={{ padding: "1.5rem", display: "flex", alignItems: "center", gap: "1.5rem", borderLeft: "4px solid #8b5cf6" }}>
-          <div style={{ backgroundColor: "#f5f3ff", padding: "1rem", borderRadius: "12px", color: "#8b5cf6" }}>
-            <FileText size={28} />
+        <div className="card" style={{ padding: "1.5rem", display: "flex", alignItems: "center", gap: "1.5rem" }}>
+          <div className="kpi-icon-chip" style={{ background: "linear-gradient(135deg, #8b5cf6, #6d28d9)", boxShadow: "0 8px 20px rgba(139,92,246,0.28)" }}>
+            <FileText size={24} color="white" />
           </div>
           <div>
-            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.9rem", fontWeight: "600", textTransform: "uppercase" }}>Templates</p>
-            <h2 style={{ margin: 0, fontSize: "2rem", fontWeight: "700", color: "var(--dark)" }}>{templatesCount}</h2>
+            <p className="kpi-title" style={{ margin: 0 }}>Templates</p>
+            <h2 className="kpi-value" style={{ margin: 0 }}>{templatesCount}</h2>
           </div>
         </div>
       </div>
@@ -138,7 +138,7 @@ export default function Dashboard() {
       {/* Logs Table */}
       <div className="card" style={{ padding: "1.5rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-          <h3 style={{ fontSize: "1.2rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Recent Log Events</h3>
+          <h3 style={{ fontSize: "1.2rem", fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0 }}>Recent Log Events</h3>
           <Link href="/analytics" style={{ fontSize: "0.85rem", color: "var(--primary)", fontWeight: "600", display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
             Explore full logs table <ArrowRight size={14} />
           </Link>
@@ -151,26 +151,26 @@ export default function Dashboard() {
         ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px" }}>
-              <thead>
-                <tr style={{ borderBottom: "2px solid var(--border-color)", textAlign: "left" }}>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Log ID</th>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Service Type</th>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Template ID</th>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Sent To</th>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Status</th>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase", textAlign: "right" }}>Action</th>
+              <thead className="thead-dark">
+                <tr style={{ textAlign: "left" }}>
+                  <th style={{ padding: "1rem 1.5rem" }}>Log ID</th>
+                  <th style={{ padding: "1rem 1.5rem" }}>Service Type</th>
+                  <th style={{ padding: "1rem 1.5rem" }}>Template ID</th>
+                  <th style={{ padding: "1rem 1.5rem" }}>Sent To</th>
+                  <th style={{ padding: "1rem 1.5rem" }}>Status</th>
+                  <th style={{ padding: "1rem 1.5rem", textAlign: "right" }}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredLogs.slice(0, 8).map((log) => (
                   <tr key={log.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                    <td style={{ padding: "1rem", fontWeight: "600", color: "var(--primary)" }}>#{log.id}</td>
+                    <td style={{ padding: "1rem", fontWeight: "600", color: "var(--primary)", fontFamily: "var(--font-mono)" }}>#{log.id}</td>
                     <td style={{ padding: "1rem", color: "var(--text-main)" }}>{log.serviceType}</td>
                     <td style={{ padding: "1rem", color: "var(--dark)", fontWeight: "500" }}>{log.templateId || "—"}</td>
                     <td style={{ padding: "1rem", fontWeight: "500", color: "var(--dark)" }}>{log.sentTo}</td>
                     <td style={{ padding: "1rem" }}>
                       <span style={{ 
-                        display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.25rem 0.75rem", borderRadius: "100px", fontSize: "0.8rem", fontWeight: "600",
+                        display: "inline-flex", alignItems: "center", gap: "0.35rem", padding: "0.3rem 0.85rem", borderRadius: "9999px", fontSize: "0.78rem", fontWeight: "600", fontFamily: "var(--font-display)", letterSpacing: "0.02em",
                         backgroundColor: log.event === "Failed" ? "#fee2e2" : log.event === "Received" ? "#dcfce7" : log.event === "Viewed" ? "#f3e8ff" : log.event === "Skipped" ? "#fef3c7" : "#e0f2fe",
                         color: log.event === "Failed" ? "#991b1b" : log.event === "Received" ? "#166534" : log.event === "Viewed" ? "#6b21a8" : log.event === "Skipped" ? "#92400e" : "#075985"
                       }}>

@@ -240,16 +240,17 @@ function AnalyticsContent() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            <h1 style={{ fontSize: "1.75rem", fontWeight: "700", color: "var(--dark)", margin: 0, letterSpacing: "-0.5px" }}>
+            <h1 style={{ fontSize: "1.9rem", fontWeight: "800", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0, letterSpacing: "-0.02em" }}>
               Analytics & Delivery Reports
             </h1>
             <span style={{ 
-              backgroundColor: "rgba(79, 70, 229, 0.1)", 
+              backgroundColor: "rgba(20, 86, 240, 0.08)", 
               color: "var(--primary)", 
-              padding: "0.25rem 0.75rem", 
-              borderRadius: "100px", 
+              padding: "0.3rem 0.85rem", 
+              borderRadius: "9999px", 
               fontSize: "0.8rem", 
-              fontWeight: "600" 
+              fontWeight: "600",
+              fontFamily: "var(--font-display)" 
             }}>
               {selectedCompany}
             </span>
@@ -357,71 +358,61 @@ function AnalyticsContent() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1.5rem", marginBottom: "2rem" }}>
         
         {/* Total Sent */}
-        <div className="card" style={{ padding: "1.5rem", borderLeft: "4px solid #3b82f6", display: "flex", alignItems: "center", gap: "1.25rem" }}>
-          <div style={{ width: "48px", height: "48px", borderRadius: "12px", backgroundColor: "#eff6ff", color: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Send size={24} />
+        <div className="card" style={{ padding: "1.5rem", display: "flex", alignItems: "center", gap: "1.25rem" }}>
+          <div className="kpi-icon-chip" style={{ background: "linear-gradient(135deg, #1456f0, #0284c7)", boxShadow: "0 8px 20px rgba(20,86,240,0.28)" }}>
+            <Send size={22} color="white" />
           </div>
           <div>
-            <span style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              Total Sent
-            </span>
-            <h2 style={{ fontSize: "1.85rem", fontWeight: "700", color: "var(--dark)", margin: "0.2rem 0 0 0" }}>
+            <p className="kpi-title">Total Sent</p>
+            <h2 className="kpi-value" style={{ margin: "0.2rem 0 0 0" }}>
               {totalSent}
             </h2>
           </div>
         </div>
 
         {/* Delivered Rate */}
-        <div className="card" style={{ padding: "1.5rem", borderLeft: "4px solid #10b981", display: "flex", alignItems: "center", gap: "1.25rem" }}>
-          <div style={{ width: "48px", height: "48px", borderRadius: "12px", backgroundColor: "#ecfdf5", color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <CheckCircle2 size={24} />
+        <div className="card" style={{ padding: "1.5rem", display: "flex", alignItems: "center", gap: "1.25rem" }}>
+          <div className="kpi-icon-chip" style={{ background: "linear-gradient(135deg, #10b981, #059669)", boxShadow: "0 8px 20px rgba(16,185,129,0.28)" }}>
+            <CheckCircle2 size={22} color="white" />
           </div>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                Delivered / Received
-              </span>
-            </div>
-            <h2 style={{ fontSize: "1.85rem", fontWeight: "700", color: "var(--dark)", margin: "0.2rem 0 0 0" }}>
+            <p className="kpi-title">Delivered / Received</p>
+            <h2 className="kpi-value" style={{ margin: "0.2rem 0 0 0" }}>
               {totalSent > 0 ? `${deliveryRate}%` : "—"}
             </h2>
-            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+            <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
               {deliveredCount} confirmed delivered
             </span>
           </div>
         </div>
 
         {/* Failed Rate */}
-        <div className="card" style={{ padding: "1.5rem", borderLeft: "4px solid #ef4444", display: "flex", alignItems: "center", gap: "1.25rem" }}>
-          <div style={{ width: "48px", height: "48px", borderRadius: "12px", backgroundColor: "#fee2e2", color: "#ef4444", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <AlertOctagon size={24} />
+        <div className="card" style={{ padding: "1.5rem", display: "flex", alignItems: "center", gap: "1.25rem" }}>
+          <div className="kpi-icon-chip" style={{ background: "linear-gradient(135deg, #ef4444, #b91c1c)", boxShadow: "0 8px 20px rgba(239,68,68,0.28)" }}>
+            <AlertOctagon size={22} color="white" />
           </div>
           <div>
-            <span style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              Failed Rate
-            </span>
-            <h2 style={{ fontSize: "1.85rem", fontWeight: "700", color: "var(--dark)", margin: "0.2rem 0 0 0" }}>
+            <p className="kpi-title">Failed Rate</p>
+            <h2 className="kpi-value" style={{ margin: "0.2rem 0 0 0" }}>
               {totalSent > 0 ? `${failureRate}%` : "0%"}
             </h2>
-            <span style={{ fontSize: "0.75rem", color: "var(--danger)" }}>
+            <span style={{ fontSize: "0.78rem", color: "var(--danger)" }}>
               {failedCount} message failures
             </span>
           </div>
         </div>
 
         {/* Skipped Count */}
-        <div className="card" style={{ padding: "1.5rem", borderLeft: "4px solid #f59e0b", display: "flex", alignItems: "center", gap: "1.25rem" }}>
-          <div style={{ width: "48px", height: "48px", borderRadius: "12px", backgroundColor: "#fef3c7", color: "#f59e0b", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <AlertTriangle size={24} />
+        <div className="card" style={{ padding: "1.5rem", display: "flex", alignItems: "center", gap: "1.25rem" }}>
+          <div className="kpi-icon-chip" style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", boxShadow: "0 8px 20px rgba(245,158,11,0.28)" }}>
+            <AlertTriangle size={22} color="white" />
           </div>
           <div>
-            <span style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              Skipped Messages
-            </span>
-            <h2 style={{ fontSize: "1.85rem", fontWeight: "700", color: "var(--dark)", margin: "0.2rem 0 0 0" }}>
+            <p className="kpi-title">Skipped Messages</p>
+            <h2 className="kpi-value" style={{ margin: "0.2rem 0 0 0" }}>
               {skippedLogs.length}
             </h2>
-            <span style={{ fontSize: "0.75rem", color: "#92400e" }}>
+            <span style={{ fontSize: "0.78rem", color: "#92400e" }}>
               Due to provider/country rules
             </span>
           </div>
@@ -433,7 +424,7 @@ function AnalyticsContent() {
       <div className="card" style={{ padding: "1.5rem", marginBottom: "2.5rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "0.75rem" }}>
           <div>
-            <h3 style={{ fontSize: "1.15rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>
+            <h3 style={{ fontSize: "1.15rem", fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0 }}>
               Delivery Activity Over Time
             </h3>
             <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: "0.2rem 0 0 0" }}>
@@ -443,7 +434,7 @@ function AnalyticsContent() {
 
           <div style={{ display: "flex", gap: "1.25rem", alignItems: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.85rem", color: "var(--dark)", fontWeight: "500" }}>
-              <span style={{ width: "12px", height: "12px", borderRadius: "3px", backgroundColor: "#4f46e5", display: "inline-block" }}></span>
+              <span style={{ width: "12px", height: "12px", borderRadius: "3px", backgroundColor: "#1456f0", display: "inline-block" }}></span>
               Sent
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.85rem", color: "var(--dark)", fontWeight: "500" }}>
@@ -526,7 +517,7 @@ function AnalyticsContent() {
                           y={sentY}
                           width={barWidth}
                           height={sentHeight}
-                          fill="#4f46e5"
+                          fill="#1456f0"
                           rx="3"
                         >
                           <title>{`${d.date}: ${d.sent} Sent`}</title>
@@ -567,22 +558,25 @@ function AnalyticsContent() {
       {/* Breakdown Section: By Notification & By Trigger */}
       <div className="card" style={{ padding: "1.5rem", marginBottom: "2.5rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-color)", paddingBottom: "1rem", marginBottom: "1.5rem" }}>
-          <div style={{ display: "flex", gap: "1rem" }}>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
             <button
               onClick={() => setBreakdownTab("notifications")}
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: "0.5rem",
-                padding: "0.5rem 1rem",
-                borderRadius: "6px",
+                padding: "0.55rem 1.1rem",
+                borderRadius: "9999px",
                 border: "none",
                 cursor: "pointer",
                 fontWeight: "600",
-                fontSize: "0.95rem",
-                backgroundColor: breakdownTab === "notifications" ? "var(--primary)" : "transparent",
+                fontSize: "0.85rem",
+                fontFamily: "var(--font-display)",
+                backgroundColor: breakdownTab === "notifications" ? "var(--navy-gradient)" : "transparent",
+                backgroundImage: breakdownTab === "notifications" ? "var(--navy-gradient)" : "none",
                 color: breakdownTab === "notifications" ? "white" : "var(--text-muted)",
-                transition: "all 0.2s"
+                boxShadow: breakdownTab === "notifications" ? "0 3px 10px rgba(24,30,37,0.28)" : "none",
+                transition: "all 0.25s cubic-bezier(0.4,0,0.2,1)"
               }}
             >
               <Bell size={16} /> Breakdown by Notification
@@ -593,15 +587,18 @@ function AnalyticsContent() {
                 display: "flex",
                 alignItems: "center",
                 gap: "0.5rem",
-                padding: "0.5rem 1rem",
-                borderRadius: "6px",
+                padding: "0.55rem 1.1rem",
+                borderRadius: "9999px",
                 border: "none",
                 cursor: "pointer",
                 fontWeight: "600",
-                fontSize: "0.95rem",
-                backgroundColor: breakdownTab === "triggers" ? "var(--primary)" : "transparent",
+                fontSize: "0.85rem",
+                fontFamily: "var(--font-display)",
+                backgroundColor: breakdownTab === "triggers" ? "var(--navy-gradient)" : "transparent",
+                backgroundImage: breakdownTab === "triggers" ? "var(--navy-gradient)" : "none",
                 color: breakdownTab === "triggers" ? "white" : "var(--text-muted)",
-                transition: "all 0.2s"
+                boxShadow: breakdownTab === "triggers" ? "0 3px 10px rgba(24,30,37,0.28)" : "none",
+                transition: "all 0.25s cubic-bezier(0.4,0,0.2,1)"
               }}
             >
               <Zap size={16} /> Breakdown by Trigger
@@ -613,15 +610,15 @@ function AnalyticsContent() {
         {breakdownTab === "notifications" && (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", minWidth: "850px" }}>
-              <thead>
-                <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid var(--border-color)" }}>
-                  <th style={{ padding: "0.85rem 1rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Notification</th>
-                  <th style={{ padding: "0.85rem 1rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Channel</th>
-                  <th style={{ padding: "0.85rem 1rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Sent</th>
-                  <th style={{ padding: "0.85rem 1rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Failed</th>
-                  <th style={{ padding: "0.85rem 1rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Fail Rate</th>
-                  <th style={{ padding: "0.85rem 1rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Last Sent</th>
-                  <th style={{ padding: "0.85rem 1rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase", textAlign: "right" }}>Action</th>
+              <thead className="thead-dark">
+                <tr style={{ textAlign: "left" }}>
+                  <th style={{ padding: "0.9rem 1rem" }}>Notification</th>
+                  <th style={{ padding: "0.9rem 1rem" }}>Channel</th>
+                  <th style={{ padding: "0.9rem 1rem" }}>Sent</th>
+                  <th style={{ padding: "0.9rem 1rem" }}>Failed</th>
+                  <th style={{ padding: "0.9rem 1rem" }}>Fail Rate</th>
+                  <th style={{ padding: "0.9rem 1rem" }}>Last Sent</th>
+                  <th style={{ padding: "0.9rem 1rem", textAlign: "right" }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -636,10 +633,11 @@ function AnalyticsContent() {
                     <td style={{ padding: "1rem", fontWeight: "600", color: item.failed > 0 ? "var(--danger)" : "var(--text-muted)" }}>{item.failed}</td>
                     <td style={{ padding: "1rem" }}>
                       <span style={{ 
-                        padding: "0.2rem 0.6rem", 
-                        borderRadius: "100px", 
-                        fontSize: "0.8rem", 
+                        padding: "0.3rem 0.85rem", 
+                        borderRadius: "9999px", 
+                        fontSize: "0.78rem", 
                         fontWeight: "600",
+                        fontFamily: "var(--font-display)",
                         backgroundColor: item.failRate > 10 ? "#fee2e2" : "#ecfdf5",
                         color: item.failRate > 10 ? "#991b1b" : "#166534"
                       }}>
@@ -680,14 +678,14 @@ function AnalyticsContent() {
         {breakdownTab === "triggers" && (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", minWidth: "850px" }}>
-              <thead>
-                <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid var(--border-color)" }}>
-                  <th style={{ padding: "0.85rem 1rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Trigger Name</th>
-                  <th style={{ padding: "0.85rem 1rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Event Type</th>
-                  <th style={{ padding: "0.85rem 1rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Attached Notifications</th>
-                  <th style={{ padding: "0.85rem 1rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Total Sent</th>
-                  <th style={{ padding: "0.85rem 1rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Failed</th>
-                  <th style={{ padding: "0.85rem 1rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Failure Rate</th>
+              <thead className="thead-dark">
+                <tr style={{ textAlign: "left" }}>
+                  <th style={{ padding: "0.9rem 1rem" }}>Trigger Name</th>
+                  <th style={{ padding: "0.9rem 1rem" }}>Event Type</th>
+                  <th style={{ padding: "0.9rem 1rem" }}>Attached Notifications</th>
+                  <th style={{ padding: "0.9rem 1rem" }}>Total Sent</th>
+                  <th style={{ padding: "0.9rem 1rem" }}>Failed</th>
+                  <th style={{ padding: "0.9rem 1rem" }}>Failure Rate</th>
                 </tr>
               </thead>
               <tbody>
@@ -700,10 +698,11 @@ function AnalyticsContent() {
                     <td style={{ padding: "1rem", fontWeight: "600", color: trig.failed > 0 ? "var(--danger)" : "var(--text-muted)" }}>{trig.failed}</td>
                     <td style={{ padding: "1rem" }}>
                       <span style={{ 
-                        padding: "0.2rem 0.6rem", 
-                        borderRadius: "100px", 
-                        fontSize: "0.8rem", 
+                        padding: "0.3rem 0.85rem", 
+                        borderRadius: "9999px", 
+                        fontSize: "0.78rem", 
                         fontWeight: "600",
+                        fontFamily: "var(--font-display)",
                         backgroundColor: trig.failRate > 10 ? "#fee2e2" : "#ecfdf5",
                         color: trig.failRate > 10 ? "#991b1b" : "#166534"
                       }}>
@@ -723,7 +722,7 @@ function AnalyticsContent() {
       <div id="full-logs-section" className="card" style={{ padding: "1.5rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "0.5rem" }}>
           <div>
-            <h3 style={{ fontSize: "1.15rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>
+            <h3 style={{ fontSize: "1.15rem", fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0 }}>
               Full Log Activity Stream
             </h3>
             <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: "0.2rem 0 0 0" }}>
@@ -740,16 +739,16 @@ function AnalyticsContent() {
           <>
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", minWidth: "950px" }}>
-                <thead>
-                  <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid var(--border-color)" }}>
-                    <th style={{ padding: "0.9rem 1.2rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Log ID</th>
-                    <th style={{ padding: "0.9rem 1.2rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Notification ID</th>
-                    <th style={{ padding: "0.9rem 1.2rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Template ID</th>
-                    <th style={{ padding: "0.9rem 1.2rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Sent To</th>
-                    <th style={{ padding: "0.9rem 1.2rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Service</th>
-                    <th style={{ padding: "0.9rem 1.2rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Event</th>
-                    <th style={{ padding: "0.9rem 1.2rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Timestamp</th>
-                    <th style={{ padding: "0.9rem 1.2rem", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase", textAlign: "right" }}>Action</th>
+                <thead className="thead-dark">
+                  <tr style={{ textAlign: "left" }}>
+                    <th style={{ padding: "0.9rem 1.2rem" }}>Log ID</th>
+                    <th style={{ padding: "0.9rem 1.2rem" }}>Notification ID</th>
+                    <th style={{ padding: "0.9rem 1.2rem" }}>Template ID</th>
+                    <th style={{ padding: "0.9rem 1.2rem" }}>Sent To</th>
+                    <th style={{ padding: "0.9rem 1.2rem" }}>Service</th>
+                    <th style={{ padding: "0.9rem 1.2rem" }}>Event</th>
+                    <th style={{ padding: "0.9rem 1.2rem" }}>Timestamp</th>
+                    <th style={{ padding: "0.9rem 1.2rem", textAlign: "right" }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -760,17 +759,18 @@ function AnalyticsContent() {
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
                     >
-                      <td style={{ padding: "0.9rem 1.2rem", fontWeight: "600", color: "var(--dark)" }}>#{log.id}</td>
-                      <td style={{ padding: "0.9rem 1.2rem", color: "var(--primary)", fontWeight: "500" }}>#{log.notificationId}</td>
+                      <td style={{ padding: "0.9rem 1.2rem", fontWeight: "600", color: "var(--dark)", fontFamily: "var(--font-mono)" }}>#{log.id}</td>
+                      <td style={{ padding: "0.9rem 1.2rem", color: "var(--primary)", fontWeight: "500", fontFamily: "var(--font-mono)" }}>#{log.notificationId}</td>
                       <td style={{ padding: "0.9rem 1.2rem", color: "var(--dark)", fontWeight: "500" }}>{log.templateId || "—"}</td>
                       <td style={{ padding: "0.9rem 1.2rem", color: "var(--dark)" }}>{log.sentTo}</td>
                       <td style={{ padding: "0.9rem 1.2rem", color: "var(--text-muted)", fontSize: "0.9rem" }}>{log.serviceType}</td>
                       <td style={{ padding: "0.9rem 1.2rem" }}>
                         <span style={{ 
-                          padding: "0.25rem 0.65rem", 
-                          borderRadius: "4px", 
-                          fontSize: "0.8rem", 
+                          padding: "0.3rem 0.85rem", 
+                          borderRadius: "9999px", 
+                          fontSize: "0.78rem", 
                           fontWeight: "600",
+                          fontFamily: "var(--font-display)",
                           backgroundColor: log.event === "Failed" ? "#fee2e2" : log.event === "Received" ? "#dcfce7" : log.event === "Viewed" ? "#f3e8ff" : log.event === "Skipped" ? "#fef3c7" : "#e0f2fe",
                           color: log.event === "Failed" ? "#991b1b" : log.event === "Received" ? "#166534" : log.event === "Viewed" ? "#6b21a8" : log.event === "Skipped" ? "#92400e" : "#075985"
                         }}>

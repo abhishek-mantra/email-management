@@ -47,16 +47,16 @@ export default function NotificationsPage() {
     return (
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "1050px" }}>
-          <thead>
-            <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid var(--border-color)", textAlign: "left" }}>
-              <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>ID</th>
-              <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Status</th>
-              <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>User Type</th>
-              <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Name</th>
-              <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Trigger / Conditions</th>
-              <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Action</th>
-              <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Last Sent</th>
-              <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right" }}>Actions</th>
+          <thead className="thead-dark">
+            <tr style={{ textAlign: "left" }}>
+              <th style={{ padding: "1rem 1.25rem" }}>ID</th>
+              <th style={{ padding: "1rem 1.25rem" }}>Status</th>
+              <th style={{ padding: "1rem 1.25rem" }}>User Type</th>
+              <th style={{ padding: "1rem 1.25rem" }}>Name</th>
+              <th style={{ padding: "1rem 1.25rem" }}>Trigger / Conditions</th>
+              <th style={{ padding: "1rem 1.25rem" }}>Action</th>
+              <th style={{ padding: "1rem 1.25rem" }}>Last Sent</th>
+              <th style={{ padding: "1rem 1.25rem", textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -74,7 +74,7 @@ export default function NotificationsPage() {
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"} 
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
                 >
-                  <td style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "var(--primary)" }}>#{n.id}</td>
+                  <td style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "var(--primary)", fontFamily: "var(--font-mono)" }}>#{n.id}</td>
                   <td style={{ padding: "1rem 1.25rem" }}>
                     <button
                       type="button"
@@ -86,10 +86,11 @@ export default function NotificationsPage() {
                       style={{
                         border: "none",
                         cursor: "pointer",
-                        padding: "0.25rem 0.65rem",
-                        borderRadius: "100px",
-                        fontSize: "0.75rem",
+                        padding: "0.3rem 0.85rem",
+                        borderRadius: "9999px",
+                        fontSize: "0.78rem",
                         fontWeight: "600",
+                        fontFamily: "var(--font-display)",
                         display: "inline-flex",
                         alignItems: "center",
                         gap: "0.35rem",
@@ -152,7 +153,7 @@ export default function NotificationsPage() {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Notifications</h1>
+          <h1 style={{ fontSize: "1.9rem", fontWeight: "800", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0, letterSpacing: "-0.02em" }}>Notifications</h1>
           <p style={{ color: "var(--text-muted)", margin: "0.25rem 0 0 0", fontSize: "0.9rem" }}>Showing notifications for {selectedCompany}</p>
         </div>
 
@@ -164,42 +165,18 @@ export default function NotificationsPage() {
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1.5rem" }}>
-        <div style={{ display: "flex", borderBottom: "1px solid var(--border-color)", width: "100%", gap: "2rem" }}>
+        <div className="pill-switcher">
           <button
-            style={{ 
-              display: "flex", alignItems: "center", gap: "0.5rem",
-              padding: "0.75rem 0.5rem", 
-              fontSize: "1rem", 
-              fontWeight: "500", 
-              color: activeTab === "notifications" ? "var(--primary)" : "#64748b", 
-              backgroundColor: "transparent", 
-              border: "none",
-              borderBottom: activeTab === "notifications" ? "2px solid var(--primary)" : "2px solid transparent",
-              cursor: "pointer",
-              transition: "all 0.2s",
-              marginBottom: "-1px"
-            }}
+            className={activeTab === "notifications" ? "active" : ""}
             onClick={() => handleTabChange("notifications")}
           >
-            <Bell size={18} /> Notification
+            <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}><Bell size={16} /> Notification</span>
           </button>
           <button
-            style={{ 
-              display: "flex", alignItems: "center", gap: "0.5rem",
-              padding: "0.75rem 0.5rem", 
-              fontSize: "1rem", 
-              fontWeight: "500", 
-              color: activeTab === "log" ? "var(--primary)" : "#64748b", 
-              backgroundColor: "transparent", 
-              border: "none",
-              borderBottom: activeTab === "log" ? "2px solid var(--primary)" : "2px solid transparent",
-              cursor: "pointer",
-              transition: "all 0.2s",
-              marginBottom: "-1px"
-            }}
+            className={activeTab === "log" ? "active" : ""}
             onClick={() => handleTabChange("log")}
           >
-            <FileText size={18} /> Log
+            <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}><FileText size={16} /> Log</span>
           </button>
         </div>
       </div>
@@ -213,11 +190,11 @@ export default function NotificationsPage() {
       {activeTab === "log" && (
         <div className="card" style={{ padding: "1.5rem", minHeight: "60vh" }}>
           {/* Banner linking to full Analytics */}
-          <div style={{ backgroundColor: "#eff6ff", border: "1px solid #bfdbfe", padding: "0.85rem 1.25rem", borderRadius: "8px", marginBottom: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
+          <div style={{ backgroundColor: "rgba(20, 86, 240, 0.07)", border: "1px solid rgba(20, 86, 240, 0.18)", padding: "0.95rem 1.25rem", borderRadius: "16px", marginBottom: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
             <div style={{ fontSize: "0.9rem", color: "#1e40af" }}>
               <strong>Lightweight recent activity view.</strong> Looking for interactive trend charts, failure breakdowns, or date range filters?
             </div>
-            <Link href="/analytics" className="btn btn-primary" style={{ padding: "0.4rem 0.85rem", fontSize: "0.85rem" }}>
+            <Link href="/analytics" className="btn btn-primary" style={{ padding: "0.45rem 0.95rem", fontSize: "0.85rem" }}>
               Open Analytics <ArrowRight size={14} />
             </Link>
           </div>
@@ -233,16 +210,16 @@ export default function NotificationsPage() {
           ) : (
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "1000px" }}>
-                <thead>
-                  <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid var(--border-color)", textAlign: "left" }}>
-                    <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Log ID</th>
-                    <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Notification ID</th>
-                    <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Template ID</th>
-                    <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Sent To</th>
-                    <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Service Type</th>
-                    <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Event</th>
-                    <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Timestamp</th>
-                    <th style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right" }}>Action</th>
+                <thead className="thead-dark">
+                  <tr style={{ textAlign: "left" }}>
+                    <th style={{ padding: "1rem 1.25rem" }}>Log ID</th>
+                    <th style={{ padding: "1rem 1.25rem" }}>Notification ID</th>
+                    <th style={{ padding: "1rem 1.25rem" }}>Template ID</th>
+                    <th style={{ padding: "1rem 1.25rem" }}>Sent To</th>
+                    <th style={{ padding: "1rem 1.25rem" }}>Service Type</th>
+                    <th style={{ padding: "1rem 1.25rem" }}>Event</th>
+                    <th style={{ padding: "1rem 1.25rem" }}>Timestamp</th>
+                    <th style={{ padding: "1rem 1.25rem", textAlign: "right" }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -253,17 +230,18 @@ export default function NotificationsPage() {
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"} 
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
                     >
-                      <td style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "var(--dark)" }}>#{log.id}</td>
-                      <td style={{ padding: "1rem 1.25rem", color: "var(--primary)", fontWeight: "500" }}>#{log.notificationId}</td>
+                      <td style={{ padding: "1rem 1.25rem", fontWeight: "600", color: "var(--dark)", fontFamily: "var(--font-mono)" }}>#{log.id}</td>
+                      <td style={{ padding: "1rem 1.25rem", color: "var(--primary)", fontWeight: "500", fontFamily: "var(--font-mono)" }}>#{log.notificationId}</td>
                       <td style={{ padding: "1rem 1.25rem", color: "var(--dark)", fontWeight: "500" }}>{log.templateId || "—"}</td>
                       <td style={{ padding: "1rem 1.25rem" }}>{log.sentTo}</td>
                       <td style={{ padding: "1rem 1.25rem", color: "var(--text-muted)" }}>{log.serviceType}</td>
                       <td style={{ padding: "1rem 1.25rem" }}>
                         <span style={{ 
-                          padding: "0.25rem 0.5rem", 
-                          borderRadius: "4px", 
-                          fontSize: "0.8rem", 
-                          fontWeight: "500",
+                          padding: "0.3rem 0.85rem", 
+                          borderRadius: "9999px", 
+                          fontSize: "0.78rem", 
+                          fontWeight: "600",
+                          fontFamily: "var(--font-display)",
                           backgroundColor: log.event === "Failed" ? "#fee2e2" : log.event === "Received" ? "#dcfce7" : log.event === "Viewed" ? "#f3e8ff" : log.event === "Skipped" ? "#fef3c7" : "#e0f2fe",
                           color: log.event === "Failed" ? "#991b1b" : log.event === "Received" ? "#166534" : log.event === "Viewed" ? "#6b21a8" : log.event === "Skipped" ? "#92400e" : "#075985"
                         }}>

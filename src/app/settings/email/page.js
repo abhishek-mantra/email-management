@@ -115,7 +115,7 @@ export default function EmailSettingsPage() {
     <div style={{ padding: "0 2rem 2rem 2rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Email Settings</h1>
+          <h1 style={{ fontSize: "1.9rem", fontWeight: "800", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0, letterSpacing: "-0.02em" }}>Email Settings</h1>
           <p style={{ color: "var(--text-muted)", margin: "0.25rem 0 0 0", fontSize: "0.9rem" }}>Configuring for {selectedCompany}</p>
         </div>
         {activeTab === "emailId" ? (
@@ -129,15 +129,17 @@ export default function EmailSettingsPage() {
         )}
       </div>
 
-      <div style={{ display: "flex", borderBottom: "1px solid var(--border-color)", marginBottom: "2rem" }}>
-        <button 
-          style={{ padding: "1rem 1.5rem", background: "none", border: "none", borderBottom: activeTab === "emailId" ? "2px solid #1a73e8" : "2px solid transparent", color: activeTab === "emailId" ? "#1a73e8" : "var(--text-muted)", fontWeight: activeTab === "emailId" ? "600" : "500", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }}
+      <div className="pill-switcher" style={{ marginBottom: "2rem" }}>
+        <button
+          className={activeTab === "emailId" ? "pill-option active" : "pill-option"}
+          style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
           onClick={() => setActiveTab("emailId")}
         >
           <Mail size={16} /> Email IDs
         </button>
-        <button 
-          style={{ padding: "1rem 1.5rem", background: "none", border: "none", borderBottom: activeTab === "provider" ? "2px solid #1a73e8" : "2px solid transparent", color: activeTab === "provider" ? "#1a73e8" : "var(--text-muted)", fontWeight: activeTab === "provider" ? "600" : "500", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }}
+        <button
+          className={activeTab === "provider" ? "pill-option active" : "pill-option"}
+          style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
           onClick={() => setActiveTab("provider")}
         >
           <Server size={16} /> Providers
@@ -148,13 +150,13 @@ export default function EmailSettingsPage() {
         {activeTab === "emailId" && (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "600px" }}>
-              <thead>
-                <tr style={{ borderBottom: "2px solid var(--border-color)", textAlign: "left" }}>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>ID</th>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Email ID</th>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Provider</th>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Priority</th>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase", textAlign: "right" }}>Action</th>
+              <thead className="thead-dark">
+                <tr style={{ textAlign: "left" }}>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", textTransform: "uppercase" }}>ID</th>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", textTransform: "uppercase" }}>Email ID</th>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", textTransform: "uppercase" }}>Provider</th>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", textTransform: "uppercase" }}>Priority</th>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", textTransform: "uppercase", textAlign: "right" }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -166,7 +168,7 @@ export default function EmailSettingsPage() {
                   const provider = providers.find(p => p.id === email.providerId);
                   return (
                     <tr key={email.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                      <td style={{ padding: "1rem", fontWeight: "500", color: "var(--dark)" }}>{email.id}</td>
+                      <td style={{ padding: "1rem", fontWeight: "500", color: "var(--dark)", fontFamily: "var(--font-mono)", fontSize: "0.85rem" }}>{email.id}</td>
                       <td style={{ padding: "1rem", color: "var(--primary)", fontWeight: "500" }}>{email.email}</td>
                       <td style={{ padding: "1rem", color: "var(--text-main)" }}>{provider ? provider.connectionName : "Unknown"}</td>
                       <td style={{ padding: "1rem" }}>
@@ -191,12 +193,12 @@ export default function EmailSettingsPage() {
         {activeTab === "provider" && (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "600px" }}>
-              <thead>
-                <tr style={{ borderBottom: "2px solid var(--border-color)", textAlign: "left" }}>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>ID</th>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Connection Name</th>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Provider</th>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase", textAlign: "right" }}>Action</th>
+              <thead className="thead-dark">
+                <tr style={{ textAlign: "left" }}>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", textTransform: "uppercase" }}>ID</th>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", textTransform: "uppercase" }}>Connection Name</th>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", textTransform: "uppercase" }}>Provider</th>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", textTransform: "uppercase", textAlign: "right" }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -207,9 +209,9 @@ export default function EmailSettingsPage() {
                 ) : providers.map(provider => (
                   <tr key={provider.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                     <td style={{ padding: "1rem", fontWeight: "500", color: "var(--dark)" }}>{provider.id}</td>
-                    <td style={{ padding: "1rem", color: "var(--primary)", fontWeight: "500" }}>{provider.connectionName}</td>
+                    <td style={{ padding: "1rem", color: "var(--primary)", fontWeight: "500", fontFamily: "var(--font-mono)", fontSize: "0.85rem" }}>{provider.connectionName}</td>
                     <td style={{ padding: "1rem", color: "var(--text-main)" }}>
-                      <span style={{ padding: "0.3rem 0.8rem", backgroundColor: "#f8fafc", borderRadius: "6px", border: "1px solid var(--border-color)", fontSize: "0.85rem", fontWeight: "600" }}>
+                      <span style={{ padding: "0.3rem 0.85rem", backgroundColor: "rgba(255,255,255,0.9)", borderRadius: "100px", border: "1px solid rgba(15,23,42,0.08)", fontSize: "0.85rem", fontWeight: "600", color: "var(--dark)", boxShadow: "0 1px 2px rgba(15,23,42,0.06)" }}>
                         {provider.provider}
                       </span>
                     </td>
@@ -229,10 +231,10 @@ export default function EmailSettingsPage() {
 
       {/* Provider Modal */}
       {isProviderModalOpen && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(15, 23, 42, 0.4)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setIsProviderModalOpen(false)}>
-          <div style={{ width: "500px", backgroundColor: "white", borderRadius: "8px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", display: "flex", flexDirection: "column", maxHeight: "90vh" }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h2 style={{ fontSize: "1.1rem", fontWeight: "600", margin: 0, color: "var(--dark)" }}>{editingProvider ? "Edit Provider" : "Connect Provider"}</h2>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(15, 23, 42, 0.45)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setIsProviderModalOpen(false)}>
+          <div style={{ width: "500px", backgroundColor: "rgba(255,255,255,0.92)", backdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.7)", borderRadius: "1.75rem", boxShadow: "0 24px 60px rgba(15,23,42,0.18)", display: "flex", flexDirection: "column", maxHeight: "90vh", overflow: "hidden" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: "1.25rem 1.5rem", backgroundColor: "rgba(248,250,252,0.8)", borderBottom: "1px solid rgba(15,23,42,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ fontSize: "1.1rem", fontWeight: "700", fontFamily: "var(--font-display)", margin: 0, color: "var(--dark)" }}>{editingProvider ? "Edit Provider" : "Connect Provider"}</h2>
               <button style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }} onClick={() => setIsProviderModalOpen(false)}>
                 <X size={20} />
               </button>
@@ -302,10 +304,10 @@ export default function EmailSettingsPage() {
 
       {/* Email ID Modal */}
       {isEmailModalOpen && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(15, 23, 42, 0.4)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setIsEmailModalOpen(false)}>
-          <div style={{ width: "450px", backgroundColor: "white", borderRadius: "8px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", display: "flex", flexDirection: "column" }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h2 style={{ fontSize: "1.1rem", fontWeight: "600", margin: 0, color: "var(--dark)" }}>{editingEmail ? "Edit Email ID" : "Add New Email ID"}</h2>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(15, 23, 42, 0.45)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setIsEmailModalOpen(false)}>
+          <div style={{ width: "450px", backgroundColor: "rgba(255,255,255,0.92)", backdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.7)", borderRadius: "1.75rem", boxShadow: "0 24px 60px rgba(15,23,42,0.18)", display: "flex", flexDirection: "column", overflow: "hidden" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: "1.25rem 1.5rem", backgroundColor: "rgba(248,250,252,0.8)", borderBottom: "1px solid rgba(15,23,42,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ fontSize: "1.1rem", fontWeight: "700", fontFamily: "var(--font-display)", margin: 0, color: "var(--dark)" }}>{editingEmail ? "Edit Email ID" : "Add New Email ID"}</h2>
               <button style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }} onClick={() => setIsEmailModalOpen(false)}>
                 <X size={20} />
               </button>

@@ -40,7 +40,7 @@ export default function TriggerPage() {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Triggers</h1>
+          <h1 style={{ fontSize: "1.9rem", fontWeight: "800", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0, letterSpacing: "-0.02em" }}>Triggers</h1>
           <p style={{ color: "var(--text-muted)", margin: "0.25rem 0 0 0", fontSize: "0.9rem" }}>Showing triggers for {selectedCompany}</p>
         </div>
         <button className="btn btn-primary" onClick={() => setIsCreatingTrigger(true)}>
@@ -48,7 +48,7 @@ export default function TriggerPage() {
         </button>
       </div>
 
-      <div style={{ backgroundColor: "white", borderRadius: "8px", overflow: "hidden", border: "1px solid var(--border-color)", boxShadow: "0 1px 3px rgba(0,0,0,0.1)", marginBottom: "2rem" }}>
+      <div style={{ backgroundColor: "rgba(255,255,255,0.8)", backdropFilter: "blur(16px)", borderRadius: "1.25rem", overflow: "hidden", border: "1px solid rgba(255,255,255,0.7)", boxShadow: "0 1px 2px rgba(15,23,42,0.06), 0 8px 24px -12px rgba(15,23,42,0.12)", marginBottom: "2rem" }}>
         {triggers.length === 0 ? (
           <div style={{ padding: "4rem 1rem", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
             <LayoutTemplate size={48} style={{ color: "var(--text-muted)", opacity: 0.5, marginBottom: "0.5rem" }} />
@@ -61,21 +61,21 @@ export default function TriggerPage() {
         ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.9rem" }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid var(--border-color)", color: "var(--text-muted)" }}>
+              <thead className="thead-dark">
+                <tr style={{ textAlign: "left" }}>
                   <th style={{ padding: "1rem 1.5rem", width: "40px" }}>
-                    <input type="checkbox" style={{ cursor: "pointer", width: "16px", height: "16px" }} />
+                    <input type="checkbox" style={{ cursor: "pointer", width: "16px", height: "16px", accentColor: "white" }} />
                   </th>
-                  <th style={{ padding: "1rem 1.5rem", fontWeight: "500" }}>
+                  <th style={{ padding: "1rem 1.5rem", fontWeight: "600" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "4px", cursor: "pointer" }}>
                       Name
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5"></path><polyline points="5 12 12 5 19 12"></polyline></svg>
                     </div>
                   </th>
-                  <th style={{ padding: "1rem 1.5rem", fontWeight: "500" }}>Event Type</th>
-                  <th style={{ padding: "1rem 1.5rem", fontWeight: "500" }}>Filter</th>
-                  <th style={{ padding: "1rem 1.5rem", fontWeight: "500" }}>Tags</th>
-                  <th style={{ padding: "1rem 1.5rem", fontWeight: "500" }}>Last Edited</th>
+                  <th style={{ padding: "1rem 1.5rem", fontWeight: "600" }}>Event Type</th>
+                  <th style={{ padding: "1rem 1.5rem", fontWeight: "600" }}>Filter</th>
+                  <th style={{ padding: "1rem 1.5rem", fontWeight: "600" }}>Tags</th>
+                  <th style={{ padding: "1rem 1.5rem", fontWeight: "600" }}>Last Edited</th>
                 </tr>
               </thead>
               <tbody>
@@ -88,7 +88,7 @@ export default function TriggerPage() {
                     <td style={{ color: "var(--text-main)" }}>{trigger.eventType}</td>
                     <td>
                       <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                        <span style={{ backgroundColor: "#f1f5f9", padding: "0.2rem 0.6rem", borderRadius: "4px", color: "var(--dark)", fontSize: "0.85rem", fontWeight: "500" }}>{trigger.filterField}</span>
+                        <span style={{ backgroundColor: "var(--primary-light)", padding: "0.25rem 0.6rem", borderRadius: "100px", color: "var(--primary)", fontSize: "0.85rem", fontWeight: "600" }}>{trigger.filterField}</span>
                         <span style={{ color: "var(--text-main)" }}>{trigger.filterCondition}</span>
                       </div>
                     </td>
@@ -105,8 +105,8 @@ export default function TriggerPage() {
       {isCreatingTrigger && (
         <>
           <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(15, 23, 42, 0.4)", zIndex: 999, transition: "opacity 0.3s" }} onClick={() => setIsCreatingTrigger(false)}></div>
-          <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: "600px", backgroundColor: "white", zIndex: 1000, display: "flex", flexDirection: "column", boxShadow: "-4px 0 15px rgba(0,0,0,0.1)", animation: "slideInRight 0.3s ease-out" }}>
-            <div style={{ backgroundColor: "white", padding: "0.75rem 1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-color)", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
+          <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: "600px", backgroundColor: "rgba(255,255,255,0.94)", backdropFilter: "blur(24px)", zIndex: 1000, display: "flex", flexDirection: "column", boxShadow: "-12px 0 40px rgba(15,23,42,0.15)", animation: "slideInRight 0.3s ease-out" }}>
+            <div style={{ backgroundColor: "rgba(248,250,252,0.8)", padding: "0.75rem 1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(15,23,42,0.06)", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                 <button style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center" }} onClick={() => setIsCreatingTrigger(false)}>
                   <X size={20} />
@@ -124,14 +124,15 @@ export default function TriggerPage() {
               <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                 <button 
                   style={{ 
-                    backgroundColor: isSaveActive ? "#1a73e8" : "#f1f5f9", 
+                    background: isSaveActive ? "var(--navy-gradient, linear-gradient(135deg,#181e25,#2c3e50))" : "#f1f5f9", 
                     color: isSaveActive ? "white" : "#94a3b8", 
                     border: "none", 
                     padding: "0.5rem 1.2rem", 
-                    borderRadius: "4px", 
+                    borderRadius: "100px", 
                     fontSize: "0.9rem", 
-                    fontWeight: "500", 
+                    fontWeight: "600", 
                     cursor: isSaveActive ? "pointer" : "not-allowed",
+                    boxShadow: isSaveActive ? "0 4px 12px -4px rgba(24,30,37,0.4)" : "none",
                     transition: "all 0.2s"
                   }}
                   onClick={() => {
@@ -165,10 +166,10 @@ export default function TriggerPage() {
 
             <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "flex-start", padding: "2rem" }}>
               <div 
-                style={{ width: "100%", maxWidth: "800px", backgroundColor: "white", borderRadius: "8px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)", position: "relative", cursor: !selectedTriggerType ? "pointer" : "default", transition: "box-shadow 0.2s" }}
+                style={{ width: "100%", maxWidth: "800px", backgroundColor: "rgba(255,255,255,0.85)", backdropFilter: "blur(14px)", borderRadius: "1.25rem", border: "1px solid rgba(255,255,255,0.7)", boxShadow: "0 1px 2px rgba(15,23,42,0.06), 0 8px 24px -12px rgba(15,23,42,0.12)", position: "relative", cursor: !selectedTriggerType ? "pointer" : "default", transition: "box-shadow 0.2s" }}
                 onClick={() => !selectedTriggerType && setIsDrawerOpen(true)}
-                onMouseEnter={(e) => !selectedTriggerType && (e.currentTarget.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)")}
-                onMouseLeave={(e) => !selectedTriggerType && (e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)")}
+                onMouseEnter={(e) => !selectedTriggerType && (e.currentTarget.style.boxShadow = "0 12px 32px -12px rgba(20,86,240,0.25)")}
+                onMouseLeave={(e) => !selectedTriggerType && (e.currentTarget.style.boxShadow = "0 1px 2px rgba(15,23,42,0.06), 0 8px 24px -12px rgba(15,23,42,0.12)")}
               >
                 <div style={{ padding: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: selectedTriggerType ? "1px solid var(--border-color)" : "none" }}>
                   <h3 style={{ fontSize: "1.1rem", fontWeight: "500", margin: 0, color: "var(--dark)" }}>Trigger Configuration</h3>

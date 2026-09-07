@@ -97,7 +97,7 @@ function OrganizationEditContent() {
             <ArrowLeft size={20} />
           </Link>
           <div>
-            <h1 style={{ fontSize: "1.5rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>
+            <h1 style={{ fontSize: "1.6rem", fontWeight: "800", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0, letterSpacing: "-0.02em" }}>
               Edit Organization: {clientDetails.name || orgId}
             </h1>
             <p style={{ color: "var(--text-muted)", margin: "0.25rem 0 0 0", fontSize: "0.9rem" }}>
@@ -114,7 +114,7 @@ function OrganizationEditContent() {
         
         {/* Client Details Section */}
         <div className="card" style={{ padding: "1.5rem" }}>
-          <h2 style={{ fontSize: "1.2rem", fontWeight: "600", color: "var(--dark)", margin: "0 0 1.5rem 0" }}>Client Details</h2>
+          <h2 style={{ fontSize: "1.2rem", fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--dark)", margin: "0 0 1.5rem 0" }}>Client Details</h2>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
             <div className="input-group">
               <label>Client Name</label>
@@ -158,7 +158,7 @@ function OrganizationEditContent() {
         {/* Log Reporting Section */}
         <div className="card" style={{ padding: "1.5rem", overflow: "visible" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-            <h2 style={{ fontSize: "1.2rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Log Reporting</h2>
+            <h2 style={{ fontSize: "1.2rem", fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0 }}>Log Reporting</h2>
             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
               <span style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>Reporting on:</span>
               <CustomSelect 
@@ -170,7 +170,7 @@ function OrganizationEditContent() {
             </div>
           </div>
 
-          <div style={{ marginBottom: "2rem", backgroundColor: "#f8fafc", padding: "1rem", borderRadius: "8px", border: "1px solid var(--border-color)" }}>
+          <div style={{ marginBottom: "2rem", backgroundColor: "rgba(255, 255, 255, 0.6)", padding: "1.25rem 1.5rem", borderRadius: "16px", border: "1px solid rgba(226, 232, 240, 0.9)", backdropFilter: "blur(8px)" }}>
             <label style={{ display: "block", fontSize: "0.9rem", fontWeight: "600", color: "var(--dark)", marginBottom: "0.75rem" }}>Types of request logs to create:</label>
             <div style={{ display: "flex", gap: "1.5rem" }}>
               {["Received", "Sent", "Viewed", "Failed", "Skipped"].map(logType => (
@@ -186,20 +186,20 @@ function OrganizationEditContent() {
           {reportingType === "Webhook" && (
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                <h3 style={{ fontSize: "1rem", fontWeight: "600", margin: 0 }}>Configured Webhooks</h3>
+                <h3 style={{ fontSize: "1rem", fontWeight: "700", fontFamily: "var(--font-display)", margin: 0 }}>Configured Webhooks</h3>
                 <button className="btn btn-primary" onClick={() => { setModalType("webhook"); setIsModalOpen(true); }}>
                   <Plus size={16} /> Create Webhook
                 </button>
               </div>
               
-              <div style={{ overflowX: "auto", border: "1px solid var(--border-color)", borderRadius: "8px" }}>
+              <div style={{ overflowX: "auto", border: "1px solid rgba(226, 232, 240, 0.9)", borderRadius: "16px", backgroundColor: "rgba(255, 255, 255, 0.6)" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                  <thead>
-                    <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid var(--border-color)" }}>
-                      <th style={{ padding: "1rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem" }}>Webhook Name</th>
-                      <th style={{ padding: "1rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem" }}>Service</th>
-                      <th style={{ padding: "1rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem" }}>Url</th>
-                      <th style={{ padding: "1rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem" }}>Event</th>
+                  <thead className="thead-dark">
+                    <tr style={{ textAlign: "left" }}>
+                      <th style={{ padding: "1rem 1.25rem" }}>Webhook Name</th>
+                      <th style={{ padding: "1rem 1.25rem" }}>Service</th>
+                      <th style={{ padding: "1rem 1.25rem" }}>Url</th>
+                      <th style={{ padding: "1rem 1.25rem" }}>Event</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -227,20 +227,20 @@ function OrganizationEditContent() {
           {reportingType === "Email" && (
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                <h3 style={{ fontSize: "1rem", fontWeight: "600", margin: 0 }}>Configured Email Reports</h3>
+                <h3 style={{ fontSize: "1rem", fontWeight: "700", fontFamily: "var(--font-display)", margin: 0 }}>Configured Email Reports</h3>
                 <button className="btn btn-primary" onClick={() => { setModalType("email"); setIsModalOpen(true); }}>
                   <Plus size={16} /> Create Email Report
                 </button>
               </div>
               
-              <div style={{ overflowX: "auto", border: "1px solid var(--border-color)", borderRadius: "8px" }}>
+              <div style={{ overflowX: "auto", border: "1px solid rgba(226, 232, 240, 0.9)", borderRadius: "16px", backgroundColor: "rgba(255, 255, 255, 0.6)" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                  <thead>
-                    <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid var(--border-color)" }}>
-                      <th style={{ padding: "1rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem" }}>Report Name</th>
-                      <th style={{ padding: "1rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem" }}>Service</th>
-                      <th style={{ padding: "1rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem" }}>Email Address</th>
-                      <th style={{ padding: "1rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem" }}>Event</th>
+                  <thead className="thead-dark">
+                    <tr style={{ textAlign: "left" }}>
+                      <th style={{ padding: "1rem 1.25rem" }}>Report Name</th>
+                      <th style={{ padding: "1rem 1.25rem" }}>Service</th>
+                      <th style={{ padding: "1rem 1.25rem" }}>Email Address</th>
+                      <th style={{ padding: "1rem 1.25rem" }}>Event</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -267,10 +267,10 @@ function OrganizationEditContent() {
       {/* CREATE MODALS */}
       {isModalOpen && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "1rem" }}>
-          <div className="card" style={{ width: "100%", maxWidth: modalType === "webhook" ? "700px" : "500px", maxHeight: "90vh", overflowY: "auto", padding: "2rem", backgroundColor: "white" }}>
+          <div className="card" style={{ width: "100%", maxWidth: modalType === "webhook" ? "700px" : "500px", maxHeight: "90vh", overflowY: "auto", padding: "2rem", backgroundColor: "var(--glass-solid)", borderRadius: "1.75rem" }}>
             
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-              <h2 style={{ fontSize: "1.25rem", fontWeight: "600", margin: 0 }}>{modalType === "webhook" ? "Create Webhook" : "Create Email Report"}</h2>
+              <h2 style={{ fontSize: "1.25rem", fontWeight: "700", fontFamily: "var(--font-display)", margin: 0 }}>{modalType === "webhook" ? "Create Webhook" : "Create Email Report"}</h2>
               <button onClick={() => setIsModalOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }}><X size={20} /></button>
             </div>
 
@@ -312,10 +312,10 @@ function OrganizationEditContent() {
                 </div>
 
                 {/* Tabs */}
-                <div style={{ border: "1px solid var(--border-color)", borderRadius: "8px", overflow: "hidden", marginTop: "1rem" }}>
-                  <div style={{ display: "flex", borderBottom: "1px solid var(--border-color)", backgroundColor: "#f8fafc" }}>
-                    <div style={{ flex: 1, padding: "0.75rem", textAlign: "center", fontWeight: "600", color: "var(--primary)", borderBottom: "2px solid var(--primary)" }}>Body</div>
-                    <div style={{ flex: 1, padding: "0.75rem", textAlign: "center", color: "var(--text-muted)", cursor: "pointer" }}>Headers</div>
+                <div style={{ border: "1px solid rgba(226, 232, 240, 0.9)", borderRadius: "16px", overflow: "hidden", marginTop: "1rem" }}>
+                  <div className="pill-switcher" style={{ margin: "0.75rem", backgroundColor: "#f1f5f9", border: "none" }}>
+                    <button style={{ backgroundColor: "var(--navy-gradient)", color: "white", padding: "0.4rem 1.2rem", fontSize: "0.8rem" }}>Body</button>
+                    <button style={{ padding: "0.4rem 1.2rem", fontSize: "0.8rem", color: "var(--text-muted)" }}>Headers</button>
                   </div>
                   <div style={{ padding: "1rem" }}>
                     <label style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: "0.5rem", display: "block" }}>Webhook Payload*</label>

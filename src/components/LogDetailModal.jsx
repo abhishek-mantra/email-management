@@ -50,19 +50,19 @@ export default function LogDetailModal({ log, onClose }) {
           flexDirection: "column", 
           padding: 0, 
           overflow: "hidden", 
-          backgroundColor: "white",
-          borderRadius: "12px",
-          boxShadow: "0 20px 25px -5px rgba(0,0,0,0.2)"
+          backgroundColor: "var(--glass-solid)",
+          borderRadius: "1.75rem",
+          boxShadow: "0 24px 60px -12px rgba(15, 23, 42, 0.3), inset 0 0 0 1px rgba(255,255,255,0.6)"
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#f8fafc" }}>
-          <h3 style={{ fontSize: "1.15rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>
-            Delivery Log: #{log.id}
+        <div style={{ padding: "1.5rem 1.75rem", borderBottom: "1px solid rgba(226, 232, 240, 0.9)", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "rgba(248, 250, 252, 0.8)" }}>
+          <h3 style={{ fontSize: "1.15rem", fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0 }}>
+            Delivery Log: <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>#{log.id}</span>
           </h3>
           <button 
             className="btn btn-outline" 
-            style={{ padding: "0.35rem", border: "none", color: "var(--text-muted)", borderRadius: "6px" }} 
+            style={{ padding: "0.35rem", border: "none", color: "var(--text-muted)", borderRadius: "10px" }} 
             onClick={onClose}
           >
             <X size={20} />
@@ -143,7 +143,7 @@ export default function LogDetailModal({ log, onClose }) {
 
         </div>
 
-        <div style={{ padding: "1rem 1.5rem", borderTop: "1px solid var(--border-color)", backgroundColor: "#f8fafc", textAlign: "right" }}>
+        <div style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid rgba(226, 232, 240, 0.9)", backgroundColor: "rgba(248, 250, 252, 0.8)", textAlign: "right" }}>
           <button className="btn btn-primary" onClick={onClose}>Close</button>
         </div>
       </div>

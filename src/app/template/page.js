@@ -30,8 +30,8 @@ const RichTextEditor = ({ value, onChange }) => {
   };
 
   return (
-    <div style={{ border: "1px solid var(--border-color)", borderRadius: "8px", overflow: "hidden", backgroundColor: "white", display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-color)", padding: "0.5rem", backgroundColor: "#f8fafc" }}>
+    <div style={{ border: "1px solid rgba(255,255,255,0.7)", borderRadius: "1rem", overflow: "hidden", backgroundColor: "rgba(255,255,255,0.8)", backdropFilter: "blur(12px)", display: "flex", flexDirection: "column", boxShadow: "0 1px 2px rgba(15,23,42,0.06)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(15,23,42,0.06)", padding: "0.5rem", backgroundColor: "rgba(248,250,252,0.8)" }}>
         {/* Toolbar */}
         <div style={{ display: "flex", gap: "0.25rem", opacity: mode === "visual" ? 1 : 0.5, pointerEvents: mode === "visual" ? "auto" : "none" }}>
           <button type="button" onClick={() => execCommand("bold")} style={{ padding: "0.25rem", background: "none", border: "none", cursor: "pointer", color: "var(--dark)", borderRadius: "4px" }}><Bold size={16} /></button>
@@ -57,9 +57,9 @@ const RichTextEditor = ({ value, onChange }) => {
         </div>
 
         {/* Mode Toggle */}
-        <div style={{ display: "flex", border: "1px solid var(--border-color)", borderRadius: "4px", overflow: "hidden", fontSize: "0.8rem", fontWeight: "500" }}>
-          <button type="button" onClick={() => setMode("visual")} style={{ padding: "0.25rem 0.75rem", background: mode === "visual" ? "var(--primary)" : "white", color: mode === "visual" ? "white" : "var(--dark)", border: "none", cursor: "pointer" }}>Visual</button>
-          <button type="button" onClick={() => setMode("code")} style={{ padding: "0.25rem 0.75rem", background: mode === "code" ? "var(--primary)" : "white", color: mode === "code" ? "white" : "var(--dark)", border: "none", borderLeft: "1px solid var(--border-color)", cursor: "pointer" }}>Code</button>
+        <div style={{ display: "flex", border: "1px solid rgba(15,23,42,0.08)", borderRadius: "100px", overflow: "hidden", fontSize: "0.8rem", fontWeight: "500", backgroundColor: "rgba(255,255,255,0.7)" }}>
+          <button type="button" onClick={() => setMode("visual")} style={{ padding: "0.3rem 0.85rem", background: mode === "visual" ? "var(--navy-gradient, linear-gradient(135deg,#181e25,#2c3e50))" : "transparent", color: mode === "visual" ? "white" : "var(--dark)", border: "none", cursor: "pointer" }}>Visual</button>
+          <button type="button" onClick={() => setMode("code")} style={{ padding: "0.3rem 0.85rem", background: mode === "code" ? "var(--navy-gradient, linear-gradient(135deg,#181e25,#2c3e50))" : "transparent", color: mode === "code" ? "white" : "var(--dark)", border: "none", borderLeft: "1px solid rgba(15,23,42,0.08)", cursor: "pointer" }}>Code</button>
         </div>
       </div>
 
@@ -75,7 +75,7 @@ const RichTextEditor = ({ value, onChange }) => {
           <textarea
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            style={{ padding: "1rem", border: "none", outline: "none", flex: 1, resize: "none", fontFamily: "monospace", fontSize: "0.9rem", color: "var(--text-main)" }}
+            style={{ padding: "1rem", border: "none", outline: "none", flex: 1, resize: "none", fontFamily: "var(--font-mono)", fontSize: "0.9rem", color: "var(--text-main)" }}
           />
         )}
       </div>
@@ -231,7 +231,7 @@ export default function TemplatePage() {
     <div style={{ padding: "0 2rem 2rem 2rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Notification Templates</h1>
+          <h1 style={{ fontSize: "1.9rem", fontWeight: "800", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0, letterSpacing: "-0.02em" }}>Notification Templates</h1>
           <p style={{ color: "var(--text-muted)", margin: "0.25rem 0 0 0", fontSize: "0.9rem" }}>Showing templates for {selectedCompany}</p>
         </div>
       </div>
@@ -244,7 +244,7 @@ export default function TemplatePage() {
               placeholder="Search templates..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ width: "100%", padding: "0.6rem 1rem 0.6rem 2.5rem", borderRadius: "6px", border: "1px solid var(--border-color)", outline: "none", fontSize: "0.9rem" }}
+              style={{ width: "100%", padding: "0.6rem 1rem 0.6rem 2.5rem", borderRadius: "100px", border: "1px solid rgba(15,23,42,0.08)", outline: "none", fontSize: "0.9rem", backgroundColor: "rgba(255,255,255,0.9)", boxShadow: "0 1px 2px rgba(15,23,42,0.05)" }}
             />
             <svg style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </div>
@@ -272,26 +272,26 @@ export default function TemplatePage() {
               return (
                 <div 
                   key={idx} 
-                  style={{ border: "1px solid var(--border-color)", borderRadius: "8px", overflow: "hidden", backgroundColor: "white", transition: "box-shadow 0.2s, transform 0.2s", cursor: "pointer", display: "flex", flexDirection: "column" }} 
-                  onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(-2px)"; }} 
-                  onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "none"; }}
+                  style={{ border: "1px solid rgba(255,255,255,0.7)", borderRadius: "1.25rem", overflow: "hidden", backgroundColor: "rgba(255,255,255,0.8)", backdropFilter: "blur(16px)", boxShadow: "0 1px 2px rgba(15,23,42,0.06), 0 8px 24px -12px rgba(15,23,42,0.12)", transition: "box-shadow 0.2s, transform 0.2s", cursor: "pointer", display: "flex", flexDirection: "column" }} 
+                  onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 12px 32px -12px rgba(20,86,240,0.25)"; e.currentTarget.style.transform = "translateY(-2px)"; }} 
+                  onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 1px 2px rgba(15,23,42,0.06), 0 8px 24px -12px rgba(15,23,42,0.12)"; e.currentTarget.style.transform = "none"; }}
                   onClick={() => openEditModal(template)}
                 >
                   <div style={{ padding: "1.25rem", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div>
-                      <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: "600", color: "var(--dark)", marginBottom: "0.5rem" }}>{template.name}</h3>
+                      <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--dark)", marginBottom: "0.5rem" }}>{template.name}</h3>
                       <div style={{ display: "flex", gap: "0.4rem", alignItems: "center", flexWrap: "wrap" }}>
-                        <span style={{ fontSize: "0.75rem", fontWeight: "500", color: "#64748b", display: "flex", alignItems: "center", gap: "0.25rem", backgroundColor: "#f1f5f9", padding: "0.2rem 0.5rem", borderRadius: "4px" }}>
+                        <span style={{ fontSize: "0.75rem", fontWeight: "500", color: "#64748b", display: "flex", alignItems: "center", gap: "0.25rem", backgroundColor: "rgba(15,23,42,0.05)", padding: "0.2rem 0.6rem", borderRadius: "100px" }}>
                           <Mail size={12} /> Email
                         </span>
-                        <span style={{ fontSize: "0.75rem", fontWeight: "500", color: "#64748b", display: "flex", alignItems: "center", gap: "0.25rem", backgroundColor: "#f1f5f9", padding: "0.2rem 0.5rem", borderRadius: "4px" }}>
+                        <span style={{ fontSize: "0.75rem", fontWeight: "500", color: "#64748b", display: "flex", alignItems: "center", gap: "0.25rem", backgroundColor: "rgba(15,23,42,0.05)", padding: "0.2rem 0.6rem", borderRadius: "100px" }}>
                           <MessageSquare size={12} /> SMS / App
                         </span>
                         <span style={{ 
                           fontSize: "0.72rem", 
                           fontWeight: "600", 
                           color: usedCount > 0 ? "var(--primary)" : "#64748b", 
-                          backgroundColor: usedCount > 0 ? "var(--primary-light)" : "#f1f5f9", 
+                          backgroundColor: usedCount > 0 ? "var(--primary-light)" : "rgba(15,23,42,0.05)", 
                           padding: "0.2rem 0.55rem", 
                           borderRadius: "100px" 
                         }}>
@@ -353,10 +353,10 @@ export default function TemplatePage() {
 
       {isModalOpen && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(15, 23, 42, 0.5)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }} onClick={() => setIsModalOpen(false)}>
-          <div style={{ width: "900px", height: "90vh", backgroundColor: "white", borderRadius: "12px", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)", display: "flex", flexDirection: "column", animation: "slideInUp 0.3s ease-out" }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ width: "900px", height: "90vh", backgroundColor: "rgba(255,255,255,0.95)", backdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.7)", borderRadius: "1.75rem", boxShadow: "0 24px 60px rgba(15,23,42,0.22)", display: "flex", flexDirection: "column", overflow: "hidden", animation: "slideInUp 0.3s ease-out" }} onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
-            <div style={{ padding: "1.25rem 2rem", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#f8fafc", borderRadius: "12px 12px 0 0" }}>
-              <h2 style={{ fontSize: "1.25rem", fontWeight: "600", margin: 0, color: "var(--dark)" }}>
+            <div style={{ padding: "1.25rem 2rem", borderBottom: "1px solid rgba(15,23,42,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "rgba(248,250,252,0.8)" }}>
+              <h2 style={{ fontSize: "1.25rem", fontWeight: "700", fontFamily: "var(--font-display)", margin: 0, color: "var(--dark)" }}>
                 {editingTemplateName ? `Edit Template: ${editingTemplateName}` : "Create New Template"}
               </h2>
               <button style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", padding: "0.5rem", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#e2e8f0"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"} onClick={() => setIsModalOpen(false)}>
@@ -364,21 +364,24 @@ export default function TemplatePage() {
               </button>
             </div>
             
-            <div style={{ borderBottom: "1px solid var(--border-color)", display: "flex", backgroundColor: "white", padding: "0 2rem" }}>
-              <button 
-                style={{ padding: "1rem 1.5rem", background: "none", border: "none", borderBottom: activeTab === "email" ? "2px solid var(--primary)" : "2px solid transparent", color: activeTab === "email" ? "var(--primary)" : "var(--text-muted)", fontWeight: "500", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem", transition: "all 0.2s" }}
+            <div style={{ borderBottom: "1px solid rgba(15,23,42,0.06)", display: "flex", backgroundColor: "rgba(248,250,252,0.6)", padding: "0.75rem 2rem" }}>
+              <button
+                className={activeTab === "email" ? "pill-option active" : "pill-option"}
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
                 onClick={() => setActiveTab("email")}
               >
                 <Mail size={16} /> Email Config
               </button>
-              <button 
-                style={{ padding: "1rem 1.5rem", background: "none", border: "none", borderBottom: activeTab === "sms" ? "2px solid var(--primary)" : "2px solid transparent", color: activeTab === "sms" ? "var(--primary)" : "var(--text-muted)", fontWeight: "500", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem", transition: "all 0.2s" }}
+              <button
+                className={activeTab === "sms" ? "pill-option active" : "pill-option"}
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
                 onClick={() => setActiveTab("sms")}
               >
                 <MessageSquare size={16} /> SMS Config
               </button>
-              <button 
-                style={{ padding: "1rem 1.5rem", background: "none", border: "none", borderBottom: activeTab === "push" ? "2px solid var(--primary)" : "2px solid transparent", color: activeTab === "push" ? "var(--primary)" : "var(--text-muted)", fontWeight: "500", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem", transition: "all 0.2s" }}
+              <button
+                className={activeTab === "push" ? "pill-option active" : "pill-option"}
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
                 onClick={() => setActiveTab("push")}
               >
                 <Smartphone size={16} /> Push Config
@@ -423,8 +426,8 @@ export default function TemplatePage() {
               {activeTab === "sms" && (
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                   {/* Twilio Accordion */}
-                  <div style={{ border: "1px solid var(--border-color)", borderRadius: "8px", overflow: "hidden", backgroundColor: "white" }}>
-                    <div style={{ padding: "1rem", display: "flex", alignItems: "center", gap: "1rem", cursor: "pointer", backgroundColor: expandedSms === "Twilio" ? "#f8fafc" : "white" }} onClick={() => setExpandedSms(expandedSms === "Twilio" ? "" : "Twilio")}>
+                  <div style={{ border: "1px solid rgba(255,255,255,0.7)", borderRadius: "12px", overflow: "hidden", backgroundColor: "rgba(255,255,255,0.7)", backdropFilter: "blur(12px)", boxShadow: "0 1px 2px rgba(15,23,42,0.05)" }}>
+                    <div style={{ padding: "1rem", display: "flex", alignItems: "center", gap: "1rem", cursor: "pointer", backgroundColor: "rgba(255,255,255,0.7)" }} onClick={() => setExpandedSms(expandedSms === "Twilio" ? "" : "Twilio")}>
                       <input type="checkbox" checked={formData.smsTwilioEnabled} onChange={(e) => setFormData({ ...formData, smsTwilioEnabled: e.target.checked })} onClick={(e) => e.stopPropagation()} style={{ cursor: "pointer", width: "16px", height: "16px" }} />
                       <span style={{ fontWeight: "600", color: "var(--dark)", flex: 1 }}>Check 1 Twilio</span>
                       <span style={{ color: "var(--text-muted)" }}>{expandedSms === "Twilio" ? "▲" : "▼"}</span>
@@ -447,8 +450,8 @@ export default function TemplatePage() {
                   </div>
 
                   {/* MSG91 Accordion */}
-                  <div style={{ border: "1px solid var(--border-color)", borderRadius: "8px", overflow: "hidden", backgroundColor: "white" }}>
-                    <div style={{ padding: "1rem", display: "flex", alignItems: "center", gap: "1rem", cursor: "pointer", backgroundColor: expandedSms === "MSG91" ? "#f8fafc" : "white" }} onClick={() => setExpandedSms(expandedSms === "MSG91" ? "" : "MSG91")}>
+                  <div style={{ border: "1px solid rgba(255,255,255,0.7)", borderRadius: "12px", overflow: "hidden", backgroundColor: "rgba(255,255,255,0.7)", backdropFilter: "blur(12px)", boxShadow: "0 1px 2px rgba(15,23,42,0.05)" }}>
+                    <div style={{ padding: "1rem", display: "flex", alignItems: "center", gap: "1rem", cursor: "pointer", backgroundColor: "rgba(255,255,255,0.7)" }} onClick={() => setExpandedSms(expandedSms === "MSG91" ? "" : "MSG91")}>
                       <input type="checkbox" checked={formData.smsMsg91Enabled} onChange={(e) => setFormData({ ...formData, smsMsg91Enabled: e.target.checked })} onClick={(e) => e.stopPropagation()} style={{ cursor: "pointer", width: "16px", height: "16px" }} />
                       <span style={{ fontWeight: "600", color: "var(--dark)", flex: 1 }}>Check 2 MSG91</span>
                       <span style={{ color: "var(--text-muted)" }}>{expandedSms === "MSG91" ? "▲" : "▼"}</span>
@@ -492,8 +495,8 @@ export default function TemplatePage() {
                   </div>
 
                   {/* Bulk SMS Gateway Accordion */}
-                  <div style={{ border: "1px solid var(--border-color)", borderRadius: "8px", overflow: "hidden", backgroundColor: "white" }}>
-                    <div style={{ padding: "1rem", display: "flex", alignItems: "center", gap: "1rem", cursor: "pointer", backgroundColor: expandedSms === "Bulk" ? "#f8fafc" : "white" }} onClick={() => setExpandedSms(expandedSms === "Bulk" ? "" : "Bulk")}>
+                  <div style={{ border: "1px solid rgba(255,255,255,0.7)", borderRadius: "12px", overflow: "hidden", backgroundColor: "rgba(255,255,255,0.7)", backdropFilter: "blur(12px)", boxShadow: "0 1px 2px rgba(15,23,42,0.05)" }}>
+                    <div style={{ padding: "1rem", display: "flex", alignItems: "center", gap: "1rem", cursor: "pointer", backgroundColor: "rgba(255,255,255,0.7)" }} onClick={() => setExpandedSms(expandedSms === "Bulk" ? "" : "Bulk")}>
                       <input type="checkbox" checked={formData.smsBulkEnabled} onChange={(e) => setFormData({ ...formData, smsBulkEnabled: e.target.checked })} onClick={(e) => e.stopPropagation()} style={{ cursor: "pointer", width: "16px", height: "16px" }} />
                       <span style={{ fontWeight: "600", color: "var(--dark)", flex: 1 }}>Check 3 Bulk SMS Gateway</span>
                       <span style={{ color: "var(--text-muted)" }}>{expandedSms === "Bulk" ? "▲" : "▼"}</span>
@@ -562,8 +565,8 @@ export default function TemplatePage() {
       )}
       {showAddSenderId && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(15, 23, 42, 0.6)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }}>
-          <div style={{ width: "500px", backgroundColor: "white", borderRadius: "8px", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)", display: "flex", flexDirection: "column", padding: "2rem" }}>
-            <h3 style={{ margin: "0 0 1.5rem 0", fontSize: "1.2rem", fontWeight: "600", color: "var(--dark)" }}>Add Sender ID</h3>
+          <div style={{ width: "500px", backgroundColor: "rgba(255,255,255,0.92)", backdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.7)", borderRadius: "1.75rem", boxShadow: "0 24px 60px rgba(15,23,42,0.18)", display: "flex", flexDirection: "column", padding: "2rem" }}>
+            <h3 style={{ margin: "0 0 1.5rem 0", fontSize: "1.2rem", fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--dark)" }}>Add Sender ID</h3>
             
             <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
@@ -635,9 +638,9 @@ export default function TemplatePage() {
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#f8fafc" }}>
+            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid rgba(15,23,42,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "rgba(248,250,252,0.8)" }}>
               <div>
-                <h3 style={{ fontSize: "1.15rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>
+                <h3 style={{ fontSize: "1.15rem", fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0 }}>
                   Template Preview (Sample Data)
                 </h3>
                 <span style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
@@ -645,16 +648,16 @@ export default function TemplatePage() {
                 </span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                <div style={{ display: "flex", backgroundColor: "#e2e8f0", borderRadius: "6px", padding: "2px" }}>
+                <div style={{ display: "flex", backgroundColor: "rgba(15,23,42,0.06)", borderRadius: "100px", padding: "2px" }}>
                   <button 
                     type="button" 
                     onClick={() => setPreviewDevice("desktop")}
                     style={{ 
-                      padding: "4px 8px", 
+                      padding: "4px 10px", 
                       border: "none", 
-                      borderRadius: "4px", 
-                      backgroundColor: previewDevice === "desktop" ? "white" : "transparent", 
-                      color: previewDevice === "desktop" ? "var(--primary)" : "var(--text-muted)", 
+                      borderRadius: "100px", 
+                      backgroundColor: previewDevice === "desktop" ? "var(--navy-gradient, linear-gradient(135deg,#181e25,#2c3e50))" : "transparent", 
+                      color: previewDevice === "desktop" ? "white" : "var(--text-muted)", 
                       cursor: "pointer", 
                       display: "flex", 
                       alignItems: "center", 
@@ -669,11 +672,11 @@ export default function TemplatePage() {
                     type="button" 
                     onClick={() => setPreviewDevice("mobile")}
                     style={{ 
-                      padding: "4px 8px", 
+                      padding: "4px 10px", 
                       border: "none", 
-                      borderRadius: "4px", 
-                      backgroundColor: previewDevice === "mobile" ? "white" : "transparent", 
-                      color: previewDevice === "mobile" ? "var(--primary)" : "var(--text-muted)", 
+                      borderRadius: "100px", 
+                      backgroundColor: previewDevice === "mobile" ? "var(--navy-gradient, linear-gradient(135deg,#181e25,#2c3e50))" : "transparent", 
+                      color: previewDevice === "mobile" ? "white" : "var(--text-muted)", 
                       cursor: "pointer", 
                       display: "flex", 
                       alignItems: "center", 

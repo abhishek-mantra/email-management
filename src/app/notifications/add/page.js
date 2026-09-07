@@ -59,7 +59,7 @@ const VariableDropdown = ({ onSelect }) => {
     <div className="tooltip-container" ref={dropdownRef}>
       <button 
         type="button"
-        style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem", borderRadius: "6px", backgroundColor: "white", border: "1px solid #cbd5e1", color: "#475569", display: "flex", alignItems: "center", gap: "0.3rem", cursor: "pointer", transition: "all 0.2s" }}
+        style={{ padding: "0.35rem 0.8rem", fontSize: "0.78rem", borderRadius: "9999px", backgroundColor: "white", border: "1px solid #cbd5e1", color: "var(--primary)", display: "flex", alignItems: "center", gap: "0.3rem", cursor: "pointer", transition: "all 0.2s", fontWeight: "600" }}
         onClick={() => setIsOpen(!isOpen)}
         onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"}
         onMouseOut={(e) => e.currentTarget.style.backgroundColor = "white"}
@@ -256,7 +256,7 @@ function AddNotificationContent() {
 
   return (
     <div>
-      <div style={{ position: "sticky", top: 0, zIndex: 50, backgroundColor: "rgba(248, 250, 252, 0.9)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", gap: "1rem", padding: "1rem 0", marginBottom: "1rem", borderBottom: "1px solid var(--border-color)", margin: "-1.5rem -1.5rem 1.5rem -1.5rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
+      <div style={{ position: "sticky", top: 0, zIndex: 50, backgroundColor: "rgba(255, 255, 255, 0.85)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", display: "flex", alignItems: "center", gap: "1rem", padding: "1rem 0", marginBottom: "1rem", borderBottom: "1px solid rgba(226, 232, 240, 0.6)", margin: "-1.5rem -1.5rem 1.5rem -1.5rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
         <Link href="/notifications" className="btn btn-outline" style={{ padding: "0.5rem" }}>
           <ArrowLeft size={18} />
         </Link>
@@ -266,7 +266,7 @@ function AddNotificationContent() {
             <ChevronRight size={12} />
             <span style={{ color: "var(--dark)" }}>{editId ? "Edit" : "New"}</span>
           </div>
-          <h1 style={{ fontSize: "1.25rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>
+          <h1 style={{ fontSize: "1.4rem", fontWeight: "800", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0, letterSpacing: "-0.02em" }}>
             {isBulk ? "Add Bulk Campaign" : (editId ? "Edit Notification" : "Add New Notification")}
           </h1>
         </div>
@@ -279,8 +279,8 @@ function AddNotificationContent() {
       </div>
 
       {!isBulk && (
-        <div className="card" style={{ padding: "1.5rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1.5rem", backgroundColor: "white" }}>
-          <label style={{ fontSize: "1.1rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Trigger Event:</label>
+        <div className="card" style={{ padding: "1.5rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1.5rem", flexWrap: "wrap" }}>
+          <label style={{ fontSize: "1.1rem", fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0 }}>Trigger Event:</label>
           <CustomSelect
             value={formData.trigger}
             onChange={val => setFormData({ ...formData, trigger: val })}
@@ -298,10 +298,10 @@ function AddNotificationContent() {
           {/* Basic Details */}
           <div className="card" style={{ padding: "0", overflow: "visible" }}>
             <div 
-              style={{ padding: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", backgroundColor: "white", borderBottom: isBasicDetailsOpen ? "1px solid var(--border-color)" : "none" }}
+              style={{ padding: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", backgroundColor: "rgba(248, 250, 252, 0.6)", borderBottom: isBasicDetailsOpen ? "1px solid var(--border-color)" : "none" }}
               onClick={() => setIsBasicDetailsOpen(!isBasicDetailsOpen)}
             >
-              <h2 style={{ fontSize: "1.1rem", margin: 0, color: "var(--dark)", fontWeight: "600" }}>Basic Details</h2>
+              <h2 style={{ fontSize: "1.1rem", margin: 0, color: "var(--dark)", fontWeight: "700", fontFamily: "var(--font-display)" }}>Basic Details</h2>
               <button style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex" }}>
                 {isBasicDetailsOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
               </button>
@@ -343,10 +343,10 @@ function AddNotificationContent() {
           {/* Content Setup */}
           <div className="card" style={{ padding: "0", overflow: "visible" }}>
             <div 
-              style={{ padding: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", backgroundColor: "white", borderBottom: isContentSetupOpen ? "1px solid var(--border-color)" : "none" }}
+              style={{ padding: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", backgroundColor: "rgba(248, 250, 252, 0.6)", borderBottom: isContentSetupOpen ? "1px solid var(--border-color)" : "none" }}
               onClick={() => setIsContentSetupOpen(!isContentSetupOpen)}
             >
-              <h2 style={{ fontSize: "1.1rem", margin: 0, color: "var(--dark)", fontWeight: "600" }}>Content Setup</h2>
+              <h2 style={{ fontSize: "1.1rem", margin: 0, color: "var(--dark)", fontWeight: "700", fontFamily: "var(--font-display)" }}>Content Setup</h2>
               <button style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex" }}>
                 {isContentSetupOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
               </button>
@@ -482,15 +482,15 @@ function AddNotificationContent() {
                   <label style={{ fontWeight: "500", fontSize: "0.875rem", marginBottom: 0 }}>Email Content</label>
                   <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                     <VariableDropdown onSelect={(v) => setFormData(f => ({ ...f, emailContent: f.emailContent + v }))} />
-                    <div style={{ display: "flex", backgroundColor: "#f1f5f9", borderRadius: "4px", padding: "2px" }}>
+                    <div style={{ display: "flex", backgroundColor: "white", borderRadius: "9999px", padding: "2px", border: "1px solid rgba(226, 232, 240, 0.9)" }}>
                       <button
-                        style={{ padding: "0.25rem 0.75rem", fontSize: "0.75rem", borderRadius: "2px", backgroundColor: emailInputMode === "Text" ? "white" : "transparent", boxShadow: emailInputMode === "Text" ? "0 1px 2px rgba(0,0,0,0.1)" : "none", color: emailInputMode === "Text" ? "var(--dark)" : "var(--text-muted)" }}
+                        style={{ padding: "0.25rem 0.75rem", fontSize: "0.75rem", borderRadius: "9999px", backgroundColor: emailInputMode === "Text" ? "var(--navy-gradient)" : "transparent", color: emailInputMode === "Text" ? "white" : "var(--text-muted)", fontWeight: "600" }}
                         onClick={() => setEmailInputMode("Text")}
                       >
                         Visual
                       </button>
                       <button
-                        style={{ padding: "0.25rem 0.75rem", fontSize: "0.75rem", borderRadius: "2px", backgroundColor: emailInputMode === "HTML" ? "white" : "transparent", boxShadow: emailInputMode === "HTML" ? "0 1px 2px rgba(0,0,0,0.1)" : "none", color: emailInputMode === "HTML" ? "var(--dark)" : "var(--text-muted)" }}
+                        style={{ padding: "0.25rem 0.75rem", fontSize: "0.75rem", borderRadius: "9999px", backgroundColor: emailInputMode === "HTML" ? "var(--navy-gradient)" : "transparent", color: emailInputMode === "HTML" ? "white" : "var(--text-muted)", fontWeight: "600" }}
                         onClick={() => setEmailInputMode("HTML")}
                       >
                         Code
@@ -500,7 +500,7 @@ function AddNotificationContent() {
                 </div>
 
                 {emailInputMode === "Text" ? (
-                  <div style={{ border: `1px solid ${errors.emailContent ? 'var(--danger)' : 'var(--border-color)'}`, borderRadius: "0.375rem", overflow: "hidden" }}>
+                  <div style={{ border: `1px solid ${errors.emailContent ? 'var(--danger)' : 'var(--border-color)'}`, borderRadius: "1rem", overflow: "hidden", backgroundColor: "white" }}>
                     <ReactQuill
                       theme="snow"
                       value={formData.emailContent}
@@ -551,10 +551,10 @@ function AddNotificationContent() {
           {/* Conditions */}
           <div className="card" style={{ padding: "0", overflow: "visible" }}>
             <div 
-              style={{ padding: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", backgroundColor: "white", borderBottom: isConditionsOpen ? "1px solid var(--border-color)" : "none" }}
+              style={{ padding: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", backgroundColor: "rgba(248, 250, 252, 0.6)", borderBottom: isConditionsOpen ? "1px solid var(--border-color)" : "none" }}
               onClick={() => setIsConditionsOpen(!isConditionsOpen)}
             >
-              <h2 style={{ fontSize: "1.1rem", margin: 0, color: "var(--dark)", fontWeight: "600" }}>
+              <h2 style={{ fontSize: "1.1rem", margin: 0, color: "var(--dark)", fontWeight: "700", fontFamily: "var(--font-display)" }}>
                 {isBulk ? "Conditions & Scheduling" : "Conditions"}
               </h2>
               <button style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex" }}>
@@ -580,7 +580,7 @@ function AddNotificationContent() {
                 )}
 
                 {/* Toggle Row */}
-                <div style={{ backgroundColor: "#f8fafc", borderRadius: "0.5rem", padding: "1rem 1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid var(--border-color)" }}>
+                <div style={{ backgroundColor: "rgba(255, 255, 255, 0.6)", borderRadius: "16px", padding: "1rem 1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid rgba(226, 232, 240, 0.9)", backdropFilter: "blur(8px)" }}>
                   <div>
                     <div style={{ fontWeight: "600", color: "var(--dark)", marginBottom: "0.2rem", fontSize: "0.95rem" }}>Visible to all corporates</div>
                     <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Enable to show this event to every corporate division</div>
@@ -715,13 +715,14 @@ function AddNotificationContent() {
                       style={{
                         flex: 1,
                         padding: "1rem",
-                        border: formData.eventType === "One-time" ? "2px solid var(--dark)" : "1px solid var(--border-color)",
-                        borderRadius: "0.5rem",
+                        border: formData.eventType === "One-time" ? "2px solid var(--primary)" : "1px solid var(--border-color)",
+                        borderRadius: "16px",
                         cursor: "pointer",
-                        backgroundColor: formData.eventType === "One-time" ? "#f0f9ff" : "white",
+                        backgroundColor: formData.eventType === "One-time" ? "rgba(20, 86, 240, 0.06)" : "white",
+                        boxShadow: formData.eventType === "One-time" ? "0 4px 14px rgba(20,86,240,0.12)" : "none",
                       }}
                     >
-                      <div style={{ fontWeight: "600", color: formData.eventType === "One-time" ? "var(--primary)" : "var(--dark)", marginBottom: "0.25rem" }}>One-time</div>
+                      <div style={{ fontWeight: "700", fontFamily: "var(--font-display)", color: formData.eventType === "One-time" ? "var(--primary)" : "var(--dark)", marginBottom: "0.25rem" }}>One-time</div>
                       <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Single occurrence</div>
                     </div>
                     <div
@@ -729,13 +730,14 @@ function AddNotificationContent() {
                       style={{
                         flex: 1,
                         padding: "1rem",
-                        border: formData.eventType === "Recurring" ? "2px solid var(--dark)" : "1px solid var(--border-color)",
-                        borderRadius: "0.5rem",
+                        border: formData.eventType === "Recurring" ? "2px solid var(--primary)" : "1px solid var(--border-color)",
+                        borderRadius: "16px",
                         cursor: "pointer",
-                        backgroundColor: formData.eventType === "Recurring" ? "#f0f9ff" : "white",
+                        backgroundColor: formData.eventType === "Recurring" ? "rgba(20, 86, 240, 0.06)" : "white",
+                        boxShadow: formData.eventType === "Recurring" ? "0 4px 14px rgba(20,86,240,0.12)" : "none",
                       }}
                     >
-                      <div style={{ fontWeight: "600", color: formData.eventType === "Recurring" ? "var(--primary)" : "var(--dark)", marginBottom: "0.25rem" }}>Recurring</div>
+                      <div style={{ fontWeight: "700", fontFamily: "var(--font-display)", color: formData.eventType === "Recurring" ? "var(--primary)" : "var(--dark)", marginBottom: "0.25rem" }}>Recurring</div>
                       <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Multiple sessions</div>
                     </div>
                   </div>
@@ -763,8 +765,8 @@ function AddNotificationContent() {
                     </div>
                   </div>
                 ) : (
-                  <div style={{ border: "1px solid var(--border-color)", borderRadius: "0.5rem", padding: "1.5rem", backgroundColor: "#f8fafc" }}>
-                    <h3 style={{ fontSize: "0.95rem", fontWeight: "600", color: "var(--dark)", display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem" }}>
+                  <div style={{ border: "1px solid rgba(226, 232, 240, 0.9)", borderRadius: "16px", padding: "1.5rem", backgroundColor: "rgba(255, 255, 255, 0.55)", backdropFilter: "blur(8px)" }}>
+                    <h3 style={{ fontSize: "0.95rem", fontWeight: "700", fontFamily: "var(--font-display)", color: "var(--dark)", display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem" }}>
                       <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "var(--primary)" }} />
                       SCHEDULE
                     </h3>
@@ -802,11 +804,12 @@ function AddNotificationContent() {
                                   }}
                                   style={{
                                     padding: "0.5rem 1rem",
-                                    borderRadius: "0.375rem",
+                                    borderRadius: "9999px",
                                     border: "none",
-                                    fontWeight: "500",
-                                    fontSize: "0.875rem",
-                                    backgroundColor: formData.recurringDays.includes(day) ? "var(--primary)" : "white",
+                                    fontWeight: "600",
+                                    fontFamily: "var(--font-display)",
+                                    fontSize: "0.85rem",
+                                    backgroundColor: formData.recurringDays.includes(day) ? "var(--navy-gradient)" : "white",
                                     color: formData.recurringDays.includes(day) ? "white" : "var(--dark)",
                                     boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
                                     cursor: "pointer"
@@ -913,10 +916,10 @@ function AddNotificationContent() {
 
         {/* Right Sidebar - Helper info */}
         <div>
-          <div className="card" style={{ padding: "1.5rem", backgroundColor: "#f8fafc", border: "1px dashed var(--border-color)" }}>
+          <div className="card" style={{ padding: "1.5rem", backgroundColor: "rgba(255, 255, 255, 0.6)", border: "1px dashed #cbd5e1" }}>
             <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "1rem", color: "var(--primary)" }}>
               <Info size={18} />
-              <h3 style={{ fontSize: "1rem", fontWeight: "600" }}>Tips</h3>
+              <h3 style={{ fontSize: "1rem", fontWeight: "700", fontFamily: "var(--font-display)" }}>Tips</h3>
             </div>
             <ul style={{ fontSize: "0.875rem", color: "var(--text-muted)", paddingLeft: "1.2rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               <li>Use <strong>Time Based</strong> triggers to engage users days after an event.</li>

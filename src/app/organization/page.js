@@ -43,7 +43,7 @@ export default function OrganizationPage() {
     <div style={{ padding: "0 1rem 2rem 1rem", maxWidth: "1200px", margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Organizations</h1>
+          <h1 style={{ fontSize: "1.9rem", fontWeight: "800", fontFamily: "var(--font-display)", color: "var(--dark)", margin: 0, letterSpacing: "-0.02em" }}>Organizations</h1>
           <p style={{ color: "var(--text-muted)", margin: "0.25rem 0 0 0", fontSize: "0.9rem" }}>
             Manage your clients, notification pipelines, and reporting endpoints
           </p>
@@ -59,13 +59,13 @@ export default function OrganizationPage() {
       <div className="card" style={{ padding: "0", overflow: "hidden" }}>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", minWidth: "900px" }}>
-            <thead>
-              <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid var(--border-color)" }}>
-                <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>ID</th>
-                <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Client / Company</th>
-                <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Website</th>
-                <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>All-Time Performance</th>
-                <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right" }}>Action</th>
+            <thead className="thead-dark">
+              <tr style={{ textAlign: "left" }}>
+                <th style={{ padding: "1rem 1.5rem" }}>ID</th>
+                <th style={{ padding: "1rem 1.5rem" }}>Client / Company</th>
+                <th style={{ padding: "1rem 1.5rem" }}>Website</th>
+                <th style={{ padding: "1rem 1.5rem" }}>All-Time Performance</th>
+                <th style={{ padding: "1rem 1.5rem", textAlign: "right" }}>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -84,7 +84,7 @@ export default function OrganizationPage() {
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"} 
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
                   >
-                    <td style={{ padding: "1rem 1.5rem", color: "var(--dark)", fontWeight: "600", fontSize: "0.9rem" }}>
+                    <td style={{ padding: "1rem 1.5rem", color: "var(--dark)", fontWeight: "600", fontSize: "0.9rem", fontFamily: "var(--font-mono)" }}>
                       {org.id}
                     </td>
                     <td style={{ padding: "1rem 1.5rem" }}>
@@ -107,19 +107,20 @@ export default function OrganizationPage() {
                     </td>
                     <td style={{ padding: "1rem 1.5rem" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-                        <div style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", padding: "0.25rem 0.6rem", borderRadius: "6px", backgroundColor: "#eff6ff", color: "#1e40af", fontSize: "0.8rem", fontWeight: "600" }}>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", padding: "0.3rem 0.85rem", borderRadius: "9999px", backgroundColor: "#e0e7ff", color: "#1e40af", fontSize: "0.78rem", fontWeight: "600", fontFamily: "var(--font-display)" }}>
                           <Activity size={13} /> {totalSent} Sent
                         </div>
                         <div style={{ 
                           display: "inline-flex", 
                           alignItems: "center", 
                           gap: "0.35rem", 
-                          padding: "0.25rem 0.6rem", 
-                          borderRadius: "6px", 
+                          padding: "0.3rem 0.85rem", 
+                          borderRadius: "9999px", 
                           backgroundColor: deliveryRate >= 80 ? "#ecfdf5" : totalSent === 0 ? "#f1f5f9" : "#fffbeb", 
                           color: deliveryRate >= 80 ? "#065f46" : totalSent === 0 ? "#64748b" : "#92400e", 
-                          fontSize: "0.8rem", 
-                          fontWeight: "600" 
+                          fontSize: "0.78rem", 
+                          fontWeight: "600",
+                          fontFamily: "var(--font-display)" 
                         }}>
                           <CheckCircle2 size={13} /> {totalSent > 0 ? `${deliveryRate}% Delivery` : "No Activity"}
                         </div>
@@ -162,10 +163,10 @@ export default function OrganizationPage() {
 
       {/* Add Organization Modal */}
       {isAddModalOpen && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(15, 23, 42, 0.5)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)", padding: "1rem" }}>
-          <div className="card" style={{ width: "100%", maxWidth: "520px", backgroundColor: "white", borderRadius: "12px", overflow: "hidden", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.15)" }}>
-            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#f8fafc" }}>
-              <h2 style={{ fontSize: "1.2rem", fontWeight: "600", margin: 0, color: "var(--dark)" }}>Add New Organization</h2>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(15, 23, 42, 0.5)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(6px)", padding: "1rem" }}>
+          <div className="card" style={{ width: "100%", maxWidth: "520px", backgroundColor: "var(--glass-solid)", borderRadius: "1.75rem", overflow: "hidden", boxShadow: "0 24px 60px -12px rgba(15, 23, 42, 0.35), inset 0 0 0 1px rgba(255,255,255,0.6)" }}>
+            <div style={{ padding: "1.5rem 1.75rem", borderBottom: "1px solid rgba(226, 232, 240, 0.9)", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "rgba(248, 250, 252, 0.8)" }}>
+              <h2 style={{ fontSize: "1.2rem", fontWeight: "700", fontFamily: "var(--font-display)", margin: 0, color: "var(--dark)" }}>Add New Organization</h2>
               <button onClick={() => setIsAddModalOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", padding: "0.25rem" }}>
                 <X size={20} />
               </button>
